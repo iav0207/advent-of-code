@@ -8,8 +8,7 @@ do
     case $direc in
         'u') ((v=v-d)) ;;
         'd') ((v=v+d)) ;;
-        *) ((h=h+d)) ;;
+        'f') ((h=h+d)) ;;
     esac
 done
 echo "${v}*${h}" | bc
-
