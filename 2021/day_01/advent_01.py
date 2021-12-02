@@ -3,10 +3,10 @@
 import sys
 
 inc = 0
-prev = None
+window = []
 for line in sys.stdin:
-    line_int = int(line)
-    inc += 1 if prev and line_int > prev else 0
-    prev = line_int
+    window.append(int(line))
+    inc += 1 if len(window) > 3 and window[-1] > window[0] else 0
+    window = window[-3:]
 print(inc)
 
