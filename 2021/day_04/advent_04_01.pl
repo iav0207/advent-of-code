@@ -20,7 +20,6 @@ sub process_board {
   <>;
   my @board;
   my @elim = (); # 0..4 - row elimination, 5..9 - col elimination
-  my $board_elim = scalar @queue;
   for ((0..9)) { push @elim, 0; }
   for my $i ((0..4)) {
     $line = <>;
@@ -34,6 +33,7 @@ sub process_board {
     }
   }
 
+  my $board_elim = scalar @queue;
   for (@elim) { $board_elim = min $board_elim, $_; }
 
   if ($board_elim < $winner_elim) {
@@ -54,18 +54,16 @@ for my $i ((0..4)) {
   print "  ";
   for my $j ((0..4)) {
     my $it = $winner_board[$i][$j];
-    if (exists($marked{$it})) {
-      printf '[%2d] ', $it;
-    } else {
-      printf ' %2d  ', $it;
-      $unmarked_sum += $it;
-    }
+    my $is_marked = exists($marked{$it});
+    printf($is_marked ? '[%2d] ' : ' %2d  ', $it);
+    $unmarked_sum += $is_marked ? 0 : $it;
   }
   print "\n";
 }
 
+my $score = $unmarked_sum * $last_marked;
+
 print "Sum of all unmarked numbers: $unmarked_sum\n";
 print "Last called number: $last_marked\n";
-my $score = $unmarked_sum * $last_marked;
 print "Score: $score\n";
 
