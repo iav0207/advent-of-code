@@ -1,4 +1,5 @@
-# advent-of-code
+# Advent of Code
+
 Helping Santa deliver all the Christmas gifts by solving coding katas at https://adventofcode.com/
 
 ## Index
