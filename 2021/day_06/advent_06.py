@@ -9,9 +9,9 @@ t = deque([0]*9)
 for timer in sys.stdin.read().split(','):
     t[int(timer)] += 1
 
-for i in range(0, n):
+for i in range(n):
+    t[7] += t[0]
     t.rotate(-1)
-    t[6] += t[-1]
 
 print(' '.join([str(timer) for timer in t]))
 print(sum(t))
