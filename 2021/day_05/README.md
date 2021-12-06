@@ -1,3 +1,5 @@
+Spec https://adventofcode.com/2021/day/5
+
 Compile (macOS)
 ```bash
 gfortran ADVENT_05.F -o advent_05
