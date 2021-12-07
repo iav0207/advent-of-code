@@ -10,9 +10,9 @@ for timer in sys.stdin.read().split(','):
     t[int(timer)] += 1
 
 for i in range(n):
-    t[7] += t[0]
     t.rotate(-1)
+    t[6] += t[8]
 
-print(' '.join([str(timer) for timer in t]))
+print(' '.join([str(it) for it in t]))
 print(sum(t))
 
