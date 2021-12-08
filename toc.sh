@@ -3,12 +3,13 @@
 srcs=$(find . -iname 'advent*.*')
 function langof() {
     case "${1##*\.}" in
-            'F')    echo Fortran  ;;
-            'cpp')  echo C++      ;;
-            'go')   echo Go       ;;
-            'pl')   echo Perl     ;;
-            'py')   echo Python   ;;
-            'sh')   echo Bash     ;;
+            'F')    echo Fortran    ;;
+            'cpp')  echo C++        ;;
+            'go')   echo Go         ;;
+            'js')   echo JavaScript ;;
+            'pl')   echo Perl       ;;
+            'py')   echo Python     ;;
+            'sh')   echo Bash       ;;
     esac
 }
 
