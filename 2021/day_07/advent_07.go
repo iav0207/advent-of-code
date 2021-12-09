@@ -57,7 +57,6 @@ func readInts() []int {
 		log.Fatalf("FATAL: %s", err)
 	}
 	return ints
-
 }
 
 func sortedKeys(m map[int]int64) []int {

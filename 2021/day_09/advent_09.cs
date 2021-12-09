@@ -62,18 +62,18 @@ namespace Advent2021
                 this.field = field;
             }
 
-            public int getSizeOfBasin(Tuple<int, int> start) { return Traverse(new HashSet<Tuple<int, int>>(), start); }
+            public int getSizeOfBasin(Tuple<int, int> start) { return Walk(new HashSet<Tuple<int, int>>(), start); }
 
-            private int Traverse(HashSet<Tuple<int, int>> visited, Tuple<int, int> pos)
+            private int Walk(HashSet<Tuple<int, int>> visited, Tuple<int, int> pos)
             {
                 if (visited.Contains(pos)) return visited.Count;
                 var (i, j) = pos;
                 if (i < 0 || i >= field.GetLength(0) || j < 0 || j >= field.GetLength(1) || field[i,j] > 8) return visited.Count;
                 visited.Add(pos);
-                Traverse(visited, new Tuple<int, int>(i + 1, j));
-                Traverse(visited, new Tuple<int, int>(i - 1, j));
-                Traverse(visited, new Tuple<int, int>(i, j + 1));
-                Traverse(visited, new Tuple<int, int>(i, j - 1));
+                Walk(visited, new Tuple<int, int>(i + 1, j));
+                Walk(visited, new Tuple<int, int>(i - 1, j));
+                Walk(visited, new Tuple<int, int>(i, j + 1));
+                Walk(visited, new Tuple<int, int>(i, j - 1));
                 return visited.Count;
             }
         }

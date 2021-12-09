@@ -1,6 +1,5 @@
 #!/bin/bash
 
-srcs=$(find . -iname 'advent*.*')
 function langof() {
     case "${1##*\.}" in
             'F')          echo Fortran          ;;

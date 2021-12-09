@@ -35,4 +35,3 @@ int main(int argc, char **argv)
   printf("%d * %d = %d", gamma, epsilon, gamma * epsilon);
   return 0;
 }
-
