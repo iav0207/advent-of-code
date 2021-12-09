@@ -11,23 +11,12 @@ namespace Advent2021
         static void Main(string[] args)
         {
             int n = 100;
-            int[,] field = new int[n, n];
-            string? line;
-            int i = 0;
-            while ((line = Console.ReadLine()) != null && line != "")
-            {
-                char[] elements = line.ToCharArray();
-                for (int j = 0; j < n; j++)
-                {
-                    field[i,j] = int.Parse(elements[j].ToString());
-                }
-                i++;
-            }
+            int[,] field = ReadInputs(n);
 
             int risksSum = 0;
             List<Tuple<int, int>> lowPoints = new List<Tuple<int, int>>();
 
-            for (i = 0; i < n; i++)
+            for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
                 {
@@ -52,6 +41,17 @@ namespace Advent2021
 
             Console.WriteLine($"Risk levels sum is {risksSum}");
             Console.WriteLine($"Product of the three lasrgest basins is {max.Aggregate(1, (acc, it) => acc * it)}");
+        }
+
+        private static int[,] ReadInputs(int n)
+        {
+            int[,] field = new int[n, n];
+            for (int i = 0; i < n; i++)
+            {
+                char[] elements = Console.ReadLine()!.ToCharArray();
+                for (int j = 0; j < n; j++) field[i,j] = int.Parse(elements[j].ToString());
+            }
+            return field;
         }
 
         class BasinWalker
