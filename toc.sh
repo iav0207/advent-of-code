@@ -3,13 +3,26 @@
 srcs=$(find . -iname 'advent*.*')
 function langof() {
     case "${1##*\.}" in
-            'F')    echo Fortran    ;;
-            'cpp')  echo C++        ;;
-            'go')   echo Go         ;;
-            'js')   echo JavaScript ;;
-            'pl')   echo Perl       ;;
-            'py')   echo Python     ;;
-            'sh')   echo Bash       ;;
+            'F')          echo Fortran          ;;
+            'c')          echo C                ;;
+            'coffee')     echo CoffeeScript     ;;
+            'cpp')        echo C++              ;;
+            'cs')         echo 'C#'             ;;
+            'go')         echo Go               ;;
+            'groovy')     echo Groovy           ;;
+            'java')       echo Java             ;;
+            'jl')         echo Julia            ;;
+            'js')         echo JavaScript       ;;
+            'kt')         echo Kotlin           ;;
+            'pl')         echo Perl             ;;
+            'py')         echo Python           ;;
+            'r')          echo R                ;;
+            'rb')         echo Ruby             ;;
+            'rs')         echo Rust             ;;
+            'scala')      echo Scala            ;;
+            'sh')         echo Bash             ;;
+            'ts')         echo TypeScript       ;;
+            'vb')         echo Visual Basic     ;;
     esac
 }
 
