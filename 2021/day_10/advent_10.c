@@ -42,7 +42,7 @@ char* readLine() {
 }
 
 void process(char* line) {
-    list *stack = newStack();
+    charstack *stack = newStack();
     char c;
     bool valid = true;
     int i = 0;

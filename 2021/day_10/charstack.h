@@ -1,12 +1,12 @@
 #include <stdlib.h>
 
-typedef struct list {
+typedef struct charstack {
     int size;
     char top;
-    struct list *prev;
-} list;
+    struct charstack *prev;
+} charstack;
 
-list* newStack();
-char pop(list **li);
-void push(list **li, char c);
+charstack* newStack();
+char pop(charstack **li);
+void push(charstack **li, char c);
 
