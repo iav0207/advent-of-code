@@ -14,7 +14,7 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 07](./2021/day_07)  Go Python
   + [Day 08](./2021/day_08)  JavaScript
   + [Day 09](./2021/day_09)  C#
-  + [Day 10](./2021/day_10)  Python
+  + [Day 10](./2021/day_10)  C Python
 
 ### How to generate the index
 
