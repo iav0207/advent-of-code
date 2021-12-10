@@ -2,7 +2,8 @@ Spec https://adventofcode.com/2021/day/10
 
 Execution
 ```bash
-./advent_10.py < input.txt
+./advent_10.py < input.txt  # for python
+make all < input.txt        # for c
 ```
 
 Output

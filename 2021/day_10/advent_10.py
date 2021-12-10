@@ -37,7 +37,6 @@ def score_completion(stack):
     for c in stack:
         compl_score *= 5
         compl_score += completion_rank.index(completion_for[c])
-    # print(f'Completion {completion} scoring {compl_score}')
     completion_scores.append(compl_score)
 
 

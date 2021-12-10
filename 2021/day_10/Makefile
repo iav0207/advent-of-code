@@ -6,8 +6,7 @@ run:
 	bin/advent_10
 
 build: clean init
-	gcc advent_10.c stack.c -Wall -g \
-		-o bin/advent_10
+	gcc -Wall -g advent_10.c stack.c -o bin/advent_10
 
 init:
 	mkdir -p bin

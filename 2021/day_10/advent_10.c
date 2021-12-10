@@ -3,9 +3,6 @@
 #include <string.h>
 #include "stack.h"
 
-void stop() { printf("Stopped.\n"); exit(0); }
-void assert(bool condition, char *msg) { if (!condition) { printf("%s\n", msg); exit(1); } }
-
 char *brackets = "([{<)]}>";
 int indexOf(char c) { return (int) (strchr(brackets, c) - brackets); }
 bool isOpening(char c) { return indexOf(c) < 4; }
@@ -18,10 +15,23 @@ int errPoints(char c) { return errpts[indexOf(c) - 4]; }
 char *crank = " )]}>";
 int completionRank(char c) { return (int) (strchr(crank, c) - crank); }
 
+int compare(const void * a, const void * b) {
+    long cmp = *(long*)a - *(long*)b;
+    if (cmp > 0) return 1;
+    if (cmp < 0) return -1;
+    return 0;
+}
+void sort(long* arr, long size) { qsort(arr, size, sizeof(long), compare); }
+
 int corrupted = 0;
-int incomplete = 0;
 int stxErrScore = 0;
-int completionScore = 0;
+
+int incomplete = 0;
+long completionScores[200];
+long midCompletionScore() {
+    sort(completionScores, incomplete);
+    return completionScores[incomplete / 2];
+}
 
 char* readLine() {
     char* line = malloc(1200);
@@ -45,19 +55,28 @@ void process(char* line) {
         valid = pop(&stack) == pair(c);
         if (!valid) {
             corrupted++;
-            int points = errPoints(c);
-            stxErrScore += points;
+            stxErrScore += errPoints(c);
             break;
         }
     }
+
+    bool complete = c == '\0';
+    if (!complete) return;
+
+    while (stack->size) {
+        completionScores[incomplete] *= 5;
+        char compl = pair(pop(&stack));
+        completionScores[incomplete] += completionRank(compl);
+    }
+    incomplete++;
 }
 
 int main() {
     char *line;
-    while (strlen(line = readLine()) > 0) process(line);
+    while (strlen(line = readLine()) > 0) { process(line); }
     printf("Processed %d corrupted and %d incomplete lines.\n", corrupted, incomplete);
     printf("Syntax error score: %d\n", stxErrScore);
-    printf("Completion score: %d\n", completionScore);
+    printf("Completion score: %ld\n", midCompletionScore());
     return 0;
 }
 
