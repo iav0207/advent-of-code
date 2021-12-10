@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "stack.h"
+#include "charstack.h"
 
 char *brackets = "([{<)]}>";
 int indexOf(char c) { return (int) (strchr(brackets, c) - brackets); }
