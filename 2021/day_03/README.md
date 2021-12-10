@@ -5,14 +5,9 @@ https://adventofcode.com/2021/day/3
 ## Part 1
 
 Given input data stored in `input.txt`
-Compile
+Execute the program with
 ```bash
-mkdir bin
-g++ advent_03_01.cpp -o bin/advent_03_01 --std=c++11
-```
-and execute
-```bash
-awk '{$1=$1} 1' FS=  input.txt | rs -Tng0 | bin/advent_03_01 # passing transposed input to the c++ program
+make part1 < input.txt
 ```
 
 Output is going to be like
@@ -37,8 +32,17 @@ epsilon 00000000000000000000111101000001 = 3905
 
 ## Part 2
 
-How to execute
+Execute
+```bash
+make part2 < input.txt
+```
+or
 ```bash
 ./advent_2021_03_02.py < input.txt
+```
+
+Output
+```
+903810
 ```
 
