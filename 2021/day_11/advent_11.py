@@ -17,31 +17,27 @@ flashed = set()
 
 
 def main():
-    stepnum = 0
-    first_sync = 0
+    step = 0
     flashes_100 = 0
-    print_f(stepnum)
 
-    while not first_sync:
+    while len(flashed) < n**2: # until they all flash
+        print_f(step)
         flashed.clear()
 
         make_step()
 
-        stepnum += 1
-        print_f(stepnum)
+        step += 1
+        flashes_100 += len(flashed) if step <= 100 else 0
 
-        flashes_100 += len(flashed) if stepnum <= 100 else 0
-        if len(flashed) == n**2:
-            first_sync = stepnum
-
+    print_f(step)
     print(f'Total flashes after step 100: {flashes_100}')
-    print(f'First sync at step {first_sync}')
+    print(f'First sync at step {step}')
 
 
 def make_step():
     foreach(lambda i, j, _: enqueue(i, j))
     while queue:
-        dequeue()
+        process(dequeue())
     foreach(lambda i, j, it: reset(i, j) if it > 9 else None)
 
 
@@ -50,7 +46,10 @@ def enqueue(i, j):
 
 
 def dequeue():
-    (i, j) = queue.popleft()
+    return queue.popleft()
+
+
+def process(i, j):
     if (i, j) in flashed:
         return
     f[i][j] += 1
@@ -82,10 +81,10 @@ def square(rng=range(n)):
             yield i, j
 
 
-def print_f(stepnum):
+def print_f(step):
     if not debug:
         return
-    print(f'\nAfter step {stepnum}:')
+    print(f'\nAfter step {step}:')
     for i in range(len(f)):
         print(''.join([str(it) for it in f[i]]))
 
