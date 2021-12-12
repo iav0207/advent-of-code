@@ -29,29 +29,32 @@ String.prototype.isTerminal  = function () { return this === 'start' || this ===
 class Path {
     head: string;
     parent: Path | null;
-    seen: Set<string>;
     smallCaveTwiceSeen: string | null;
 
-    constructor(head: string, parent: Path | null = null, seen: Set<string> = new Set(), smallCaveTwiceSeen: string | null = null) {
+    constructor(head: string, parent: Path | null = null, smallCaveTwiceSeen: string | null = null) {
         this.head = head;
         this.parent = parent;
-        this.seen = new Set(seen);
         this.smallCaveTwiceSeen = smallCaveTwiceSeen;
-        this.head.isSmall() && this.seen.add(this.head);
     }
 
     createChild(head: string, smallCaveTwiceSeen: boolean = false): Path {
-        return new Path(head, this, this.seen, smallCaveTwiceSeen ? head : this.smallCaveTwiceSeen);
+        return new Path(head, this, smallCaveTwiceSeen ? head : this.smallCaveTwiceSeen);
     }
 
-    toString(): string {
-        const backTrack: Array<string> = [];
+    seen(v: string): boolean {
+        if (!v.isSmall()) return false;
+        for (const u of this.backTrack()) if (u === v) return true;
+        return false;
+    }
+
+    toString(): string { return Array.from(this.backTrack()).reverse().join(","); }
+
+    *backTrack(): Generator<string> {
         let node: Path | null = this;
         while (node) {
-            backTrack.push(node.head);
+            yield node.head;
             node = node.parent;
         }
-        return backTrack.reverse().join(",");
     }
 }
 
@@ -65,14 +68,15 @@ function* walk(path: Path): Generator<Path, void, any> {
     debug && console.log(`at ${path.head}, next up: ${map[path.head] || []}`);
     for (const next of map[path.head] || []) {
         const canVisitTwice = partTwo && !path.smallCaveTwiceSeen && next.isSmall() && !next.isTerminal();
-        if (path.seen.has(next) && !canVisitTwice) continue;
-        yield* walk(path.createChild(next, path.seen.has(next)));
+        if (path.seen(next) && !canVisitTwice) continue;
+        yield* walk(path.createChild(next, path.seen(next)));
     }
 }
 
 const paths: Array<Path> = Array.from(walk(new Path('start')));
 
 debug && paths.forEach(p => console.log(p.toString()));
+
 console.log(`Part ${part}: visiting a single small cave twice is${partTwo ? "" : " not"} allowed.`);
 console.log(`There are ${paths.length} paths through the tunnels.`);
 
