@@ -27,54 +27,52 @@ String.prototype.isSmall = function () { return this.toLowerCase() === this; }
 String.prototype.isTerminal  = function () { return this === 'start' || this === 'end'; }
 
 class Path {
-    val: string;
+    head: string;
     parent: Path | null;
-    visited: Set<string>;
-    visitedTwice: string | null;
+    seen: Set<string>;
+    smallCaveTwiceSeen: string | null;
 
-    constructor(val: string, parent: Path | null = null, visited: Set<string> = new Set(), visitedTwice: string | null = null) {
-        this.val = val;
+    constructor(head: string, parent: Path | null = null, seen: Set<string> = new Set(), smallCaveTwiceSeen: string | null = null) {
+        this.head = head;
         this.parent = parent;
-        this.visited = new Set(visited);
-        this.visitedTwice = visitedTwice;
-        this.val.isSmall() && this.visited.add(this.val);
+        this.seen = new Set(seen);
+        this.smallCaveTwiceSeen = smallCaveTwiceSeen;
+        this.head.isSmall() && this.seen.add(this.head);
     }
 
-    createChild(val: string, visitedTwice: boolean = false): Path {
-        return new Path(val, this, this.visited, visitedTwice ? val : this.visitedTwice);
+    createChild(head: string, smallCaveTwiceSeen: boolean = false): Path {
+        return new Path(head, this, this.seen, smallCaveTwiceSeen ? head : this.smallCaveTwiceSeen);
     }
 
     toString(): string {
         const backTrack: Array<string> = [];
         let node: Path | null = this;
         while (node) {
-            backTrack.push(node.val);
+            backTrack.push(node.head);
             node = node.parent;
         }
         return backTrack.reverse().join(",");
     }
 }
 
-const paths: Array<Path> = [];
-
 debug && console.log(JSON.stringify(map, null, 2));
 
-function walk(v: Path) {
-    paths.push(v);
-    if (v.val === 'end') return;
-    debug && console.log(`at ${v.val}, next up: ${map[v.val] || []}`);
-    for (const u of map[v.val] || []) {
-        const canVisitTwice = partTwo && !v.visitedTwice && u.isSmall() && !u.isTerminal();
-        if (!v.visited.has(u)) walk(v.createChild(u));
-        else if (canVisitTwice) walk(v.createChild(u, true));
+function* walk(path: Path): Generator<Path, void, any> {
+    if (path.head === 'end') {
+        yield path;
+        return;
+    }
+    debug && console.log(`at ${path.head}, next up: ${map[path.head] || []}`);
+    for (const next of map[path.head] || []) {
+        const canVisitTwice = partTwo && !path.smallCaveTwiceSeen && next.isSmall() && !next.isTerminal();
+        if (path.seen.has(next) && !canVisitTwice) continue;
+        yield* walk(path.createChild(next, path.seen.has(next)));
     }
 }
 
-walk(new Path('start'));
+const paths: Array<Path> = Array.from(walk(new Path('start')));
 
-const finishingPaths = paths.filter(p => p.val === 'end');
-
-debug && finishingPaths.forEach(p => console.log(p.toString()));
+debug && paths.forEach(p => console.log(p.toString()));
 console.log(`Part ${part}: visiting a single small cave twice is${partTwo ? "" : " not"} allowed.`);
-console.log(`There are ${finishingPaths.length} paths through the tunnels.`);
+console.log(`There are ${paths.length} paths through the tunnels.`);
 
