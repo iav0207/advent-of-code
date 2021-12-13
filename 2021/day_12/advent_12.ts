@@ -1,82 +1,102 @@
 #!/usr/local/bin/ts-node
 
 const fs = require("fs");
-const lines = fs.readFileSync(0).toString().split('\n').filter((l: string) => !!l);;
+const lines = fs.readFileSync(0).toString().split('\n').filter((l: string) => !!l);
 
 const arg: number = parseInt((process.argv.slice(2))[0] || '2');
 const part: number = arg > 1 ? 2 : 1;
 const partTwo: boolean = part === 2;
+console.log(`Part ${part}: visiting a single small cave twice is${partTwo ? "" : " not"} allowed.`);
 
 const debug = false;
 
 const map: { [ key: string]: Array<string>; } = {};
 lines
     .map((line: string) => line.split('-'))
-    .forEach((edge: Array<string>) => {
-        map[edge[0]] = map[edge[0]] || [];
-        map[edge[1]] = map[edge[1]] || [];
-        map[edge[0]].push(edge[1]);
-        map[edge[1]].push(edge[0]);
+    .forEach(([u, v]: [string, string]) => {
+        map[u] = map[u] || [];
+        map[v] = map[v] || [];
+        map[u].push(v);
+        map[v].push(u);
     });
 
-interface String {
-    isSmall(): boolean;
-    isTerminal(): boolean;
+class Cave {
+    name: string;
+    mask: number;
+    isSmall: boolean;
+    isTerminal: boolean;
+
+    private static ids: Array<string> = [];
+
+    constructor(name: string) {
+        this.name = name;
+        this.isTerminal = name === 'start' || name === 'end';
+        this.isSmall = name.toLowerCase() === name;
+
+        // every cave gets its own id...
+        let id = Cave.ids.indexOf(name) + 1; // big and 'end' caves will have id = 0: they never count as seen / visited
+        if (this.isSmall && !id && name !== 'end') id = Cave.ids.push(name); // push returns new array length
+        debug && console.log(`Assigned id ${id} to cave ${name}`);
+
+        // ...and is represented as one bit in ${id} position
+        this.mask = id === 0 ? 0 : (1 << id);
+    }
 }
-String.prototype.isSmall = function () { return this.toLowerCase() === this; }
-String.prototype.isTerminal  = function () { return this === 'start' || this === 'end'; }
 
 class Path {
-    head: string;
+    head: Cave;
     parent: Path | null;
-    smallCaveTwiceSeen: string | null;
+    everSeenSmallCaveTwice: boolean;
+    seen: number; // bitset: one bit per cave
 
-    constructor(head: string, parent: Path | null = null, smallCaveTwiceSeen: string | null = null) {
+    constructor(head: Cave, parent: Path | null = null) {
         this.head = head;
         this.parent = parent;
-        this.smallCaveTwiceSeen = smallCaveTwiceSeen;
+        this.everSeenSmallCaveTwice = !!parent && (parent.everSeenSmallCaveTwice || parent?.hasSeen(head));
+        this.seen = (parent?.seen || 0) | head.mask; // adding to the set
+        debug && console.log(`Path head ${this.head.name} seen ${this.seen} twice ${this.everSeenSmallCaveTwice}`);
     }
 
-    createChild(head: string, smallCaveTwiceSeen: boolean = false): Path {
-        return new Path(head, this, smallCaveTwiceSeen ? head : this.smallCaveTwiceSeen);
-    }
+    createChild(head: Cave): Path { return new Path(head, this); }
 
-    seen(v: string): boolean {
-        if (!v.isSmall()) return false;
-        for (const u of this.backTrack()) if (u === v) return true;
-        return false;
-    }
+    hasSeen(cave: Cave): boolean { return !!(this.seen & cave.mask); }
 
-    toString(): string { return Array.from(this.backTrack()).reverse().join(","); }
+    toString(): string { return Array.from(this.traceBack()).reverse().join(","); }
 
-    *backTrack(): Generator<string> {
+    *traceBack(): Generator<string> {
         let node: Path | null = this;
         while (node) {
-            yield node.head;
+            yield node.head.name;
             node = node.parent;
         }
     }
 }
 
+const caves: { [key: string]: Cave; } = {}; // index of all the caves by name
+Object.entries(map)
+    .forEach(([u, vs]: [string, Array<string>]) => {
+        caves[u] = caves[u] || new Cave(u);
+        vs.forEach((v: string) => { caves[v] = caves[v] || new Cave(v); });
+    });
+
 debug && console.log(JSON.stringify(map, null, 2));
 
-function* walk(path: Path): Generator<Path, void, any> {
-    if (path.head === 'end') {
+function* walk(path: Path): Generator<Path> {
+    if (path.head.name === 'end') {
         yield path;
         return;
     }
-    debug && console.log(`at ${path.head}, next up: ${map[path.head] || []}`);
-    for (const next of map[path.head] || []) {
-        const canVisitTwice = partTwo && !path.smallCaveTwiceSeen && next.isSmall() && !next.isTerminal();
-        if (path.seen(next) && !canVisitTwice) continue;
-        yield* walk(path.createChild(next, path.seen(next)));
+    debug && console.log(`at ${path.head.name}, next up: ${map[path.head.name] || []}`);
+    for (const nextName of map[path.head.name] || []) {
+        const next: Cave = caves[nextName]!;
+        const canVisitTwice = partTwo && !path.everSeenSmallCaveTwice && next.isSmall && !next.isTerminal;
+        if (!path.hasSeen(next) || canVisitTwice) yield* walk(path.createChild(next));
     }
 }
 
-const paths: Array<Path> = Array.from(walk(new Path('start')));
+const paths: Array<Path> = Array.from(walk(new Path(caves['start'])));
 
 debug && paths.forEach(p => console.log(p.toString()));
 
-console.log(`Part ${part}: visiting a single small cave twice is${partTwo ? "" : " not"} allowed.`);
 console.log(`There are ${paths.length} paths through the tunnels.`);
 

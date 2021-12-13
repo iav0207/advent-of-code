@@ -1,4 +1,8 @@
 bin/
 *.class
 obj/
+out/
+build/
+
+node_modules/
 
