@@ -42,7 +42,7 @@ public class Advent13 {
         sb.append("\n");
         for (int y = 0; y <= maxY; y++) {
             for (int x = 0; x <= maxX; x++) {
-                sb.append(dots.contains(Arrays.asList(x, y)) ? "#" : ".");
+                sb.append(dots.contains(Arrays.asList(x, y)) ? '\u25a0' : ' ');
             }
             sb.append("\n");
         }

@@ -1,14 +1,16 @@
 #!/usr/local/bin/ts-node
 
 const fs = require("fs");
+
+const debug = false;
+
+debug && console.time('the whole thing');
 const lines = fs.readFileSync(0).toString().split('\n').filter((l: string) => !!l);
 
 const arg: number = parseInt((process.argv.slice(2))[0] || '2');
 const part: number = arg > 1 ? 2 : 1;
 const partTwo: boolean = part === 2;
 console.log(`Part ${part}: visiting a single small cave twice is${partTwo ? "" : " not"} allowed.`);
-
-const debug = false;
 
 const map: { [ key: string]: Array<string>; } = {};
 lines
@@ -22,7 +24,7 @@ lines
 
 class Cave {
     name: string;
-    mask: number;
+    bit: number;
     isSmall: boolean;
     isTerminal: boolean;
 
@@ -39,7 +41,7 @@ class Cave {
         debug && console.log(`Assigned id ${id} to cave ${name}`);
 
         // ...and is represented as one bit in ${id} position
-        this.mask = id === 0 ? 0 : (1 << id);
+        this.bit = id === 0 ? 0 : (1 << id);
     }
 }
 
@@ -53,13 +55,13 @@ class Path {
         this.head = head;
         this.parent = parent;
         this.everSeenSmallCaveTwice = !!parent && (parent.everSeenSmallCaveTwice || parent?.hasSeen(head));
-        this.seen = (parent?.seen || 0) | head.mask; // adding to the set
+        this.seen = (parent?.seen || 0) | head.bit; // adding to the set
         debug && console.log(`Path head ${this.head.name} seen ${this.seen} twice ${this.everSeenSmallCaveTwice}`);
     }
 
     createChild(head: Cave): Path { return new Path(head, this); }
 
-    hasSeen(cave: Cave): boolean { return !!(this.seen & cave.mask); }
+    hasSeen(cave: Cave): boolean { return !!(this.seen & cave.bit); }
 
     toString(): string { return Array.from(this.traceBack()).reverse().join(","); }
 
@@ -95,8 +97,8 @@ function* walk(path: Path): Generator<Path> {
 }
 
 const paths: Array<Path> = Array.from(walk(new Path(caves['start'])));
-
 debug && paths.forEach(p => console.log(p.toString()));
 
 console.log(`There are ${paths.length} paths through the tunnels.`);
+debug && console.timeEnd('the whole thing');
 
