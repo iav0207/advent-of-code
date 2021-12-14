@@ -40,8 +40,8 @@ class Cave {
         if (this.isSmall && !id && name !== 'end') id = Cave.ids.push(name); // push returns new array length
         debug && console.log(`Assigned id ${id} to cave ${name}`);
 
-        // ...and is represented as one bit in ${id} position
-        this.bit = id === 0 ? 0 : (1 << id);
+        // ...and is represented as one bit in ${id} register
+        this.bit = (1 << id) >> 1;
     }
 }
 
