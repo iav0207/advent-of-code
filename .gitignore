@@ -1,5 +1,6 @@
 bin/
 *.class
+*.jar
 obj/
 out/
 build/
