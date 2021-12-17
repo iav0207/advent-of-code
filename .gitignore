@@ -4,6 +4,8 @@ bin/
 obj/
 out/
 build/
-
+lib/
+idea/
+*.iml
 node_modules/
 
