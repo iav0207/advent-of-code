@@ -21,6 +21,8 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 14](./2021/day_14)  Python
   + [Day 15](./2021/day_15)  Python
   + [Day 16](./2021/day_16)  Kotlin
+  + [Day 17](./2021/day_17)  Kotlin
+  + [Day 18](./2021/day_18)  Kotlin
 
 
 ### How to generate the index

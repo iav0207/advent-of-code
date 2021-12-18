@@ -9,120 +9,121 @@ fun debug(a: Any) = if (debug) println(a) else Unit
 fun debug(a: () -> Any) = if (debug) println(a()) else Unit
 
 
+/**
+ * #notrees yay!
+ */
 fun main(args: Array<String>) {
     args.find { it == "-d" }?.also { debug = true }
 
-    val rows = generateSequence { readlnOrNull() }.map { parse(it) }
+    val rows = generateSequence { readlnOrNull() }.map { parse(it) }.toList()
+
     rows
-        .map { ArrayList(it) as MutableList<Value> }
+        .map { it.clone() }
         .reduce { prev, next -> process(prev + next) }
         .also { debug { it } }
-        .also { println("Magnitude of the addition result is ${it.magnitude()}") }
+        .also { println("Magnitude of the addition result is ${it.magnitude()}") } // part 1
 
-}
-
-fun parse(line: String): MutableList<Value> {
-    var depth = 0
-    val nums = line.replace(Regex("\\D+"), ",").split(",").filter { it.isNotBlank() }.map { it.toInt() }
-    val numQ : Iterator<Int> = nums.iterator()
-    val stx : String = line.replace(Regex("\\d+"), "")
-    val values: MutableList<Value> = stx.zipWithNext { prev, next ->
-        if (prev == '[') {
-            depth += 1
-            if (next == ',') return@zipWithNext Value(depth, numQ.next())
+    val maxMagnitude = rows.indices.maxOf { i ->
+        rows.indices.filter { it != i }.maxOf { j ->
+            process(rows[i].clone() + rows[j].clone()).magnitude()
         }
-        if (prev == ',' && next == ']') return@zipWithNext Value(depth, numQ.next())
-        if (prev == ']') { depth -= 1 }
-        check(depth > 0)
-        null
-    }.filterNotNull().toMutableList()
-    check(values.size == nums.size)
-    return values
+    }
+    println("Maximum possible magnitude of a pair addition is $maxMagnitude") // part 2
 }
 
-fun process(row: MutableList<Value>): MutableList<Value> {
+typealias Row = MutableList<Item>
+
+class Item(var depth: Int, var value: Int) {
+    override fun toString() = "Value($value at $depth)"
+}
+
+fun parse(line: String): Row {
+    val values = line.replace(Regex("\\D+"), " ").split(" ").filter { it.isNotBlank() }.map { it.toInt() }
+    val valueSeq: Iterator<Int> = values.iterator()
+    val delimiters: String = line.replace(Regex("\\d+"), "")
+
+    var depth = 0
+    return delimiters.zipWithNext { prev, next ->
+        if (prev == '[') depth++
+        if (prev == ']') depth--
+        check(depth > 0)
+        when {
+            prev == '[' && next == ',' -> Item(depth, valueSeq.next())
+            prev == ',' && next == ']' -> Item(depth, valueSeq.next())
+            else -> null
+        }
+    }.filterNotNull()
+        .toMutableList()
+        .apply { check(size == values.size) }
+}
+
+fun process(row: Row): Row = row.apply {
     var changed: Boolean
     do {
-        var i = 0
         changed = false
-        debug { row }
-        while (i in row.indices) {
-            val v = row[i]
-            if (v.depth > 4) {
-                debug { "Explosion at index $i" }
-                check(row[i].depth == row[i + 1].depth)
-                val explodingPair = v to row[i + 1]
-                if (i > 0) row[i - 1].value += explodingPair.first.value
-                if (i + 2 < row.size) row[i + 2].value += explodingPair.second.value
-                row[i].depth--
-                row[i].value = 0
-                row.removeAt(i + 1)
-                changed = true
-                break
-            }
-            i++
-        }
+        debug { this }
+
+        withIndex()
+            .find { it.value.depth > 4 }
+            ?.also { explodeAt(it.index) }
+            ?.also { changed = true }
+
         if (changed) continue
-        i = 0
-        while (i in row.indices) {
-            val v = row[i]
-            if (v.value > 9) {
-                debug { "Split at index $i" }
-                val left = Value(v.depth + 1, v.value.halfDown())
-                val right = Value(v.depth + 1, v.value.halfUp())
-                row[i] = left
-                if (i + 1 in row.indices) row.add(i + 1, right)
-                else row.add(right)
-                changed = true
-                break
-            }
-            i++
-        }
-//        if (changed) break
-        i++
+
+        withIndex()
+            .find { it.value.value > 9 }
+            ?.also { row.splitAt(it.index) }
+            ?.also { changed = true }
     } while (changed)
-    return row
 }
 
-operator fun List<Value>.plus(o: List<Value>) = MutableList(size + o.size) {
+fun Row.explodeAt(i: Int) {
+    debug { "Explosion at index $i" }
+    val exploded = get(i) to get(i + 1)
+    check(exploded.first.depth == exploded.second.depth)
+    if (i > 0) get(i - 1).value += exploded.first.value
+    if (i + 2 < size) get(i + 2).value += exploded.second.value
+    get(i).depth--
+    get(i).value = 0
+    removeAt(i + 1)
+}
+
+fun Row.splitAt(i: Int) {
+    debug { "Split at index $i" }
+    val it = get(i)
+    val left = Item(it.depth + 1, it.value.halfDown())
+    val right = Item(it.depth + 1, it.value.halfUp())
+    set(i, left)
+    if (i + 1 in indices) add(i + 1, right) else add(right)
+}
+
+fun Row.clone(): Row = map { Item(it.depth, it.value) }.toMutableList()
+
+operator fun Row.plus(o: Row) = MutableList(size + o.size) {
     val item = if (it in indices) get(it) else o[it - size]
     item.apply { depth++ }
 }
 
-fun List<Value>.magnitude(): Int {
-    val maxDepth: Int = maxOfOrNull { it.depth }!!
-//    val nodesByDepth = List<MutableList<Tree>>(5) { mutableListOf() }
-    val vStack = Stack<IndexedValue<Value>>()
-    var result: Int = 0
-    for (i in indices) {
-        if (vStack.isEmpty() || vStack.peek().value.depth != get(i).depth) {
-            vStack.push(IndexedValue(i, get(i)))
-            continue
+fun Row.magnitude(): Int {
+    val stack = Stack<Item>()
+    forEach {
+        if (stack.isEmpty() || stack.peek().depth != it.depth) {
+            stack.push(it)
+            return@forEach
         }
-        var depth = get(i).depth
-        var rightVal: Int = get(i).value
-//        var subResult: Int = get(i).value
-        while (vStack.isNotEmpty() && vStack.peek().value.depth == depth) {
-            val left = vStack.pop()
-            rightVal = 3 * left.value.value + 2 * rightVal
+        var depth = it.depth
+        var rightVal: Int = it.value
+        while (stack.isNotEmpty() && stack.peek().depth == depth) {
+            val left = stack.pop()
+            rightVal = 3 * left.value + 2 * rightVal
             depth--
         }
-        vStack.push(IndexedValue(-1, Value(depth, rightVal)))
-        result = rightVal
+        stack.push(Item(depth, rightVal))
     }
-    return result
-//    for (d in maxDepth downTo 0) {
-//        withIndex().filter { it.value.depth == d }
-//    }
+    return stack.pop().value
 }
-
-class Tree(val v: Value, var left: Tree? = null, var right: Tree? = null)
 
 fun Int.halfDown(): Int = floorDiv(2)
 fun Int.halfUp(): Int = ceil(toDouble().div(2)).toInt()
-
-class Value(var depth: Int, var value: Int) {
-    override fun toString() = "Value($value at $depth)"
-}
 
 
