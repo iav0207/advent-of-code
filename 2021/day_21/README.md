@@ -1,4 +1,4 @@
-Spec Spec https://adventofcode.com/2021/day/21
+Spec https://adventofcode.com/2021/day/21
 
 Throwing Dirac dice in a multiverse, watching what happens.
 
