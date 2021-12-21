@@ -25,6 +25,7 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 18](./2021/day_18)  Kotlin
   + Day 19 Not done
   + [Day 20](./2021/day_20)  Python
+  + [Day 21](./2021/day_21)  Python
 
 
 
