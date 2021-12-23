@@ -16,8 +16,7 @@ X, Y, Z = 0, 1, 2
 # every lit region adds to the volume its dx*dy*dz looked up from the index
 
 def main():
-    parallelism = int(sys.argv[1] if len(sys.argv) > 1 else 1)
-    instructions, cuboids = read_inputs()
+    instructions, cuboids, parallelism = read_inputs()
 
     intervals, coord_lookup, space_shape = compress_coordinates(cuboids)
     lit = process_instructions(instructions, cuboids, coord_lookup, space_shape)
@@ -28,13 +27,14 @@ def main():
 
 
 def read_inputs():
+    parallelism = int(sys.argv[1] if len(sys.argv) > 1 else 1)
     lines = [line.replace('\n', '').split(' ') for line in sys.stdin.readlines() if line]
     instructions = [line[0] for line in lines]
     cuboids = []
     for line in lines:
         numbers = [int(it) for it in re.findall(r'[-\d]+', line[1])]
         cuboids.append(list(zip(numbers[0::2], numbers[1::2])))
-    return instructions, cuboids
+    return instructions, cuboids, parallelism
 
 
 def compress_coordinates(cuboids):
@@ -44,7 +44,8 @@ def compress_coordinates(cuboids):
         for dimension, (start, end) in enumerate(cuboid):
             uniq[dimension].add(start)
             uniq[dimension].add(end)
-            uniq[dimension].add(end + 1)
+            uniq[dimension].add(end + 1)  # this is important, not 100% sure why, or how to avoid it:
+                                          # it significantly adds to overall runtime
 
     space_shape = tuple(len(it) for it in uniq)
 
@@ -54,7 +55,7 @@ def compress_coordinates(cuboids):
     for dimension, coords in enumerate(uniq):
         sorted_coords = sorted(coords)
         for i, val in enumerate(sorted_coords):
-            intervals[dimension, i] = sorted_coords[i + 1] - val if i + 2 < len(sorted_coords) else 1
+            intervals[dimension, i] = sorted_coords[i + 1] - val if i + 1 < len(sorted_coords) else 1
             coord_lookup[dimension][val] = i
 
     print(intervals)
@@ -94,7 +95,7 @@ def calc_partial_volume(lit_chunk, intervals, start_i=0):
     for i, j, k in product(*tuple(range(it) for it in lit_chunk.shape)):
         done += 1
         if start_i == 0 and done % 10_000_000 == 0:
-            print(f'Done {done*100/todo:.2f}%')
+            print(f'Done {done*100/todo:2.2f}%')
         if not lit_chunk[i, j, k]:
             continue
         dx = intervals[X, start_i + i]
