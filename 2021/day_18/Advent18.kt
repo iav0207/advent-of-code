@@ -13,28 +13,29 @@ fun debug(a: () -> Any) = if (debug) println(a()) else Unit
  * #notrees yay!
  */
 fun main(args: Array<String>) {
-    args.find { it == "-d" }?.also { debug = true }
+    debug = "-d" in args
 
     val rows = generateSequence { readlnOrNull() }.map { parse(it) }.toList()
 
     rows
-        .map { it.clone() }
         .reduce { prev, next -> process(prev + next) }
         .also { debug { it } }
         .also { println("Magnitude of the addition result is ${it.magnitude()}") } // part 1
 
-    val maxMagnitude = rows.indices.maxOf { i ->
+    rows.indices.maxOf { i ->
         rows.indices.filter { it != i }.maxOf { j ->
-            process(rows[i].clone() + rows[j].clone()).magnitude()
+            process(rows[i] + rows[j]).magnitude()
         }
-    }
-    println("Maximum possible magnitude of a pair addition is $maxMagnitude") // part 2
+    }.also { maxMagnitude -> println("Maximum possible magnitude of a pair addition is $maxMagnitude") } // part 2
 }
 
 typealias Row = MutableList<Item>
 
-class Item(var depth: Int, var value: Int) {
-    override fun toString() = "Value($value at $depth)"
+data class Item(var depth: Int, var value: Int)
+
+operator fun Row.plus(o: Row) = MutableList(size + o.size) {
+    val item = if (it in indices) get(it) else o[it - size]
+    item.copy(depth = item.depth + 1)
 }
 
 fun parse(line: String): Row {
@@ -81,8 +82,8 @@ fun Row.explodeAt(i: Int) {
     debug { "Explosion at index $i" }
     val exploded = get(i) to get(i + 1)
     check(exploded.first.depth == exploded.second.depth)
-    if (i > 0) get(i - 1).value += exploded.first.value
-    if (i + 2 < size) get(i + 2).value += exploded.second.value
+    if (i - 1 in indices) get(i - 1).value += exploded.first.value
+    if (i + 2 in indices) get(i + 2).value += exploded.second.value
     get(i).depth--
     get(i).value = 0
     removeAt(i + 1)
@@ -97,12 +98,8 @@ fun Row.splitAt(i: Int) {
     if (i + 1 in indices) add(i + 1, right) else add(right)
 }
 
-fun Row.clone(): Row = map { Item(it.depth, it.value) }.toMutableList()
-
-operator fun Row.plus(o: Row) = MutableList(size + o.size) {
-    val item = if (it in indices) get(it) else o[it - size]
-    item.apply { depth++ }
-}
+fun Int.halfDown(): Int = floorDiv(2)
+fun Int.halfUp(): Int = ceil(toDouble().div(2)).toInt()
 
 fun Row.magnitude(): Int {
     val stack = Stack<Item>()
@@ -122,8 +119,3 @@ fun Row.magnitude(): Int {
     }
     return stack.pop().value
 }
-
-fun Int.halfDown(): Int = floorDiv(2)
-fun Int.halfUp(): Int = ceil(toDouble().div(2)).toInt()
-
-
