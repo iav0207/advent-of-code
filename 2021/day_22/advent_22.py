@@ -32,8 +32,10 @@ def read_inputs():
     instructions = [line[0] for line in lines]
     cuboids = []
     for line in lines:
-        numbers = [int(it) for it in re.findall(r'[-\d]+', line[1])]
-        cuboids.append(list(zip(numbers[0::2], numbers[1::2])))
+        x1, x2, y1, y2, z1, z2 = [int(it) for it in re.findall(r'[-\d]+', line[1])]
+        # there is nothing more important in this solution than shifting the ends
+        # of the intervals by one here
+        cuboids.append([(x1, x2 + 1), (y1, y2 + 1), (z1, z2 + 1)])
     return instructions, cuboids, parallelism
 
 
@@ -44,8 +46,6 @@ def compress_coordinates(cuboids):
         for dimension, (start, end) in enumerate(cuboid):
             uniq[dimension].add(start)
             uniq[dimension].add(end)
-            uniq[dimension].add(end + 1)  # this is important, not 100% sure why, or how to avoid it:
-                                          # it significantly adds to overall runtime
 
     space_shape = tuple(len(it) for it in uniq)
 
@@ -68,7 +68,7 @@ def process_instructions(instructions, cuboids, coord_lookup, shape):
         xi = tuple(coord_lookup[X][coord] for coord in x)
         yi = tuple(coord_lookup[Y][coord] for coord in y)
         zi = tuple(coord_lookup[Z][coord] for coord in z)
-        lit[min(xi):max(xi) + 1, min(yi):max(yi) + 1, min(zi):max(zi) + 1] = instruction == 'on'
+        lit[min(xi):max(xi), min(yi):max(yi), min(zi):max(zi)] = instruction == 'on'
     return lit
 
 
