@@ -1,4 +1,4 @@
-Spec https://adventofcode.com/2021/day/25#part2
+Spec https://adventofcode.com/2021/day/25
 
 Sea Cucumber
 
