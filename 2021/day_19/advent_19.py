@@ -73,28 +73,28 @@ class Transform:
     def point(p):
         x, y, z = p
         # The rotations took me like 5 attempts to write properly
-        yield x,  y,  z
-        yield x, -z,  y
-        yield x, -y, -z
-        yield x,  z, -y
+        yield  x,  y,  z
+        yield  x, -z,  y
+        yield  x, -y, -z
+        yield  x,  z, -y
         yield -x,  y, -z
         yield -x,  z,  y
         yield -x, -y,  z
         yield -x, -z, -y
 
-        yield y,   z,  x
-        yield y,  -x,  z
-        yield y,  -z, -x
-        yield y,   x, -z
+        yield  y,  z,  x
+        yield  y, -x,  z
+        yield  y, -z, -x
+        yield  y,  x, -z
         yield -y,  z, -x
         yield -y,  x,  z
         yield -y, -z,  x
         yield -y, -x, -z
 
-        yield z,  x,  y
-        yield z, -y,  x
-        yield z, -x, -y
-        yield z,  y, -x
+        yield  z,  x,  y
+        yield  z, -y,  x
+        yield  z, -x, -y
+        yield  z,  y, -x
         yield -z,  x, -y
         yield -z,  y,  x
         yield -z, -x,  y
