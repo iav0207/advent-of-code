@@ -1,11 +1,12 @@
-bin/
 *.class
+*.iml
 *.jar
+.idea/
+bin/
+build/
+lib
+lib/
+node_modules/
 obj/
 out/
-build/
-lib/
-idea/
-*.iml
-node_modules/
 
