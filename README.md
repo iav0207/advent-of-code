@@ -4,6 +4,9 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
 
 ## Index
 
+- [2020](https://adventofcode.com/2020)
+  + [Day 01](./2020/day_01)  Python
+  + [Day 02](./2020/day_02)  Python
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
   + [Day 02](./2021/day_02)  Bash
