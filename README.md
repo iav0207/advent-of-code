@@ -43,3 +43,29 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
 ./toc.sh
 ```
 
+## Setup
+
+Generally, every solution folder is self-contained and gives instructions on how to run the solution, but assumes that the user has the required language support (e.g., compilers or runtime env) preinstalled on their system.
+
+### Kotlin
+
+Solutions present here don't require dependencies other than the Kotlin standard library.
+Build and run is done via make commands present in the folder, where the execution instructions are also given in the readmes.
+Still, they assume that you do have Kotlin compiler installed and the folder has access to Kotlin standard library in `lib`.
+
+#### Prerequisites
+
+If you don't have Kotlin compiler installed, run
+
+```bash
+scripts/install_kotlin.sh
+```
+
+Next, make sure to run
+
+```
+bash scripts/install_kotlin_stdlib.sh
+```
+
+It will download one instance of Kotlin standard library in the project lib folder and link Kotlin source folders to it, enabling builds of Kotlin solutions throughout the project.
+
