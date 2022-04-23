@@ -1,4 +1,4 @@
-package advent2020.day06
+package advent2020.day07
 
 const val SHINY_GOLD = "shiny gold"
 
