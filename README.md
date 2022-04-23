@@ -9,6 +9,7 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 02](./2020/day_02)  Python
   + [Day 03](./2020/day_03)  Python
   + [Day 04](./2020/day_04)  Kotlin
+  + [Day 05](./2020/day_05)  Kotlin
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
   + [Day 02](./2021/day_02)  Bash
