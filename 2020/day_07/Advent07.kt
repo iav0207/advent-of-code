@@ -13,8 +13,7 @@ fun main(vararg args: String) {
 
     val inverseIndex: Map<Color, List<Color>> = bags
         .flatMap { parent -> parent.children.map { child -> child.color to parent.color } }
-        .groupBy { (child, _) -> child }
-        .mapValues { (_, childParents) -> childParents.map { (_, parent) -> parent } }
+        .groupBy({ it.first }, { it.second })
 
     debug { inverseIndex.map { "${it.key} : ${it.value}" }.joinToString("\n") }
      
