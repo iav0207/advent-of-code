@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/1
 
-Two- and three-sums.
+Desc Two- and three-sums.
 
 Execution
 

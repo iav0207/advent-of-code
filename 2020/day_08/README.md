@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/8
 
-Fixing a program for a simple turing machine to make it eventually halt.
+Desc Fixing a program for a simple turing machine to make it eventually halt.
 
 Execution
 

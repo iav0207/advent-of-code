@@ -31,7 +31,9 @@ for year in $(echo 20*); do
         day="${folder##*\_}"
         path="./${year}/day_${day}"
         langs=$(ls $path| while read src; do echo $(langof $src); done | sort -u | tr '\n' ' ')
+        desc=$(grep -r '^Desc ' $path | cut -d':' -f2- | cut -d' ' -f2-)
         echo "  + [Day ${day}](${path}) $langs"
+        [ -z "${desc}" ] || echo "    * ${desc}"
     done
 done
 

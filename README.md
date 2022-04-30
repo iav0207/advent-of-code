@@ -6,16 +6,27 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
 
 - [2020](https://adventofcode.com/2020)
   + [Day 01](./2020/day_01)  Python
+    * Two- and three-sums.
   + [Day 02](./2020/day_02)  Python
+    * Validating passwords using given policies.
   + [Day 03](./2020/day_03)  Python
+    * Counting trees along slopes on an infinite field.
   + [Day 04](./2020/day_04)  Kotlin
+    * Passport validation
   + [Day 05](./2020/day_05)  Kotlin
+    * Binary search of plane seats from boarding passes encoded in binary. Actually, in base-4 alphabet.
   + [Day 06](./2020/day_06)  Kotlin
+    * Counting _yes_ answers among groups of people. First counting questions where _anyone_ answered _yes_, then questions where _everyone_ answered _yes_.
   + [Day 07](./2020/day_07)  Kotlin
+    * Counting nested colored bags recursively.
   + [Day 08](./2020/day_08)  Kotlin
+    * Fixing a program for a simple turing machine to make it eventually halt.
   + [Day 09](./2020/day_09)  Kotlin
+    * Finding an encoding error by summing pairs of ints and brute-forcing sums of contiguous integers in the list.
   + [Day 10](./2020/day_10)  Kotlin
+    * Counting ways to arrange hundreds of charger adapters. Dynamic programming.
   + [Day 11](./2020/day_11)  Kotlin
+    * Running some sort of the Game of Life to find the equilibrium of occupied seats distribution in a waiting room.
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
   + [Day 02](./2021/day_02)  Bash

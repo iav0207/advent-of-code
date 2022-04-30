@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/4
 
-Passport validation
+Desc Passport validation
 
 Execution
 

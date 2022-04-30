@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/6
 
-Counting _yes_ answers among groups of people. First counting questions where _anyone_ answered _yes_, then questions where _everyone_ answered _yes_.
+Desc Counting _yes_ answers among groups of people. First counting questions where _anyone_ answered _yes_, then questions where _everyone_ answered _yes_.
 
 Execution
 

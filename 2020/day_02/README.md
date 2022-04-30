@@ -1,5 +1,7 @@
 Spec https://adventofcode.com/2020/day/2
 
+Desc Validating passwords using given policies.
+
 Execution
 
 ```bash

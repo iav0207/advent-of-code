@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/10
 
-Counting ways to arrange hundreds of charger adapters. Dynamic programming.
+Desc Counting ways to arrange hundreds of charger adapters. Dynamic programming.
 
 Execution
 

@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/5
 
-Binary search of plane seats from boarding passes encoded in binary. Actually, in base-4 alphabet.
+Desc Binary search of plane seats from boarding passes encoded in binary. Actually, in base-4 alphabet.
 
 Execution
 

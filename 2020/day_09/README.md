@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/9
 
-Finding an encoding error by summing pairs of ints and brute-forcing sums of contiguous integers in the list.
+Desc Finding an encoding error by summing pairs of ints and brute-forcing sums of contiguous integers in the list.
 
 Execution
 

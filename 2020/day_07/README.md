@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/7
 
-Counting nested colored bags recursively.
+Desc Counting nested colored bags recursively.
 
 Execution
 

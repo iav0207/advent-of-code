@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/11
 
-Running some sort of the Game of Life to find the equilibrium of occupied seats distribution in a waiting room.
+Desc Running some sort of the Game of Life to find the equilibrium of occupied seats distribution in a waiting room.
 
 Execution
 
