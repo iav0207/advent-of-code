@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2021/day/25
 
-Sea Cucumber
+Desc Sea Cucumber
 
 Execution
 

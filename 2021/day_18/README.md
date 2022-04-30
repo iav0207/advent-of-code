@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2021/day/18
 
-Adding [snailfish](https://en.wikipedia.org/wiki/Snailfish) numbers.
+Desc Recursive addition of [snailfish](https://en.wikipedia.org/wiki/Snailfish) numbers.
 
 Implemented avoiding binary trees (because idk). Using trees would be much more straightforward
 for magnitude evaluation, I had to come up with a way to fold up the numbers in the tree

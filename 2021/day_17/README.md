@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2021/day/17
 
-Launching an ocean probe.
+Desc Launching an ocean probe.
 
 Execution
 

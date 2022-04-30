@@ -1,8 +1,6 @@
 Spec https://adventofcode.com/2021/day/22
 
-Rebooting a submarine reactor.
-
-Calculating immense volumes of enormous cuboids overlapping with each other.
+Desc Rebooting a submarine reactor. Calculating immense volumes of enormous cuboids overlapping with each other.
 
 Learned
 

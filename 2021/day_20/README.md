@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2021/day/20
 
-Fancy infinite image enhancement technology.
+Desc Fancy infinite image enhancement technology.
 
 Quite a stupid and head-on approach, runs forever,
 just wanted to get it done quickly.

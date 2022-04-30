@@ -1,5 +1,7 @@
 Spec https://adventofcode.com/2021/day/16
 
+Desc Reading an encoded expression from packets of data, then evaluating it. Recursive binary protocol.
+
 Execution
 
 ```bash

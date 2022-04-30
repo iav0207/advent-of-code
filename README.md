@@ -44,15 +44,23 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 14](./2021/day_14)  Python
   + [Day 15](./2021/day_15)  Python
   + [Day 16](./2021/day_16)  Kotlin
+    * Reading an encoded expression from packets of data, then evaluating it. Recursive binary protocol.
   + [Day 17](./2021/day_17)  Kotlin
+    * Launching an ocean probe.
   + [Day 18](./2021/day_18)  Kotlin
+    * Recursive addition of [snailfish](https://en.wikipedia.org/wiki/Snailfish) numbers.
   + [Day 19](./2021/day_19)  Python
+    * Reconstructing a 3D picture of beacons in the ocean using partial readings from misoriented misaligned scanners.
   + [Day 20](./2021/day_20)  Python
+    * Fancy infinite image enhancement technology.
   + [Day 21](./2021/day_21)  Python
-  + [Day 22](./2021/day_22)  Python 
+    * Throwing Dirac dice in a multiverse, watching what happens. Bottom-up DP approach.
+  + [Day 22](./2021/day_22)  Python
+    * Rebooting a submarine reactor. Calculating immense volumes of enormous cuboids overlapping with each other.
   + Day 23 Not done
   + Day 24 Not done
   + [Day 25](./2021/day_25)  Python
+    * Sea Cucumber
 
 
 ### How to generate the index
