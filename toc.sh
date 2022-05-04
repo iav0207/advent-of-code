@@ -27,9 +27,12 @@ function langof() {
 
 for year in $(echo 20*); do
     echo "- [$year](https://adventofcode.com/$year)"
-    for folder in $(ls $year | grep day); do
-        day="${folder##*\_}"
+    min_day=$(ls $year | grep day_ | cut -d'_' -f2- | head -n1)
+    max_day=$(ls $year | grep day_ | cut -d'_' -f2- | tail -n1)
+    for day in $(seq -f '%02g' $min_day $max_day); do
         path="./${year}/day_${day}"
+        [ -d "${path}" ] || echo "  + Day ${day} Not done"
+        [ -d "${path}" ] || continue
         langs=$(ls $path| while read src; do echo $(langof $src); done | sort -u | tr '\n' ' ')
         desc=$(grep -r '^Desc ' $path | cut -d':' -f2- | cut -d' ' -f2-)
         echo "  + [Day ${day}](${path}) $langs"
