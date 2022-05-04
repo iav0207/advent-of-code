@@ -1,5 +1,7 @@
 Spec https://adventofcode.com/2021/day/10
 
+Desc Syntax scoring of bracket sequences.
+
 Execution
 ```bash
 ./advent_10.py < input.txt  # for python

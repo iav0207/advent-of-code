@@ -1,5 +1,7 @@
 Spec https://adventofcode.com/2021/day/11
 
+Desc Counting flashes of bioluminescent Dumbo octopuses.
+
 Execution
 ```bash
 ./advent_11.py < input.txt

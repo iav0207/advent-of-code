@@ -40,11 +40,17 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 08](./2021/day_08)  JavaScript
   + [Day 09](./2021/day_09)  C#
   + [Day 10](./2021/day_10)  C Python
+    * Syntax scoring of bracket sequences.
   + [Day 11](./2021/day_11)  Python
+    * Counting flashes of bioluminescent Dumbo octopuses.
   + [Day 12](./2021/day_12)  Bash TypeScript
+    * Counting ways in which we can get out of the cave system via its numerous tunnels.
   + [Day 13](./2021/day_13)  Java
+    * Folding an origami to read the hidden message on the transparent paper.
   + [Day 14](./2021/day_14)  Python
+    * Growing polymers and counting elements
   + [Day 15](./2021/day_15)  Python
+    * Getting out of the cave with a minimal risk. Solved with Dijkstra, however the optimal solution would be linear.
   + [Day 16](./2021/day_16)  Kotlin
     * Reading an encoded expression from packets of data, then evaluating it. Recursive binary protocol.
   + [Day 17](./2021/day_17)  Kotlin

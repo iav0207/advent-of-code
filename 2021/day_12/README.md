@@ -1,5 +1,7 @@
 Spec https://adventofcode.com/2021/day/12
 
+Desc Counting ways in which we can get out of the cave system via its numerous tunnels.
+
 ## Build and execute at once
 
 Requires `node` and `ts-node` installed.

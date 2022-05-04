@@ -1,5 +1,7 @@
 Spec https://adventofcode.com/2021/day/14
 
+Desc Growing polymers and counting elements
+
 Execution
 
 ```bash
