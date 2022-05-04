@@ -28,7 +28,7 @@ typealias Distance = Value
 typealias Angle = Value
 
 class Ship1 {
-    var coord: Coord = Coord(0, 0)
+    var coord: Vector = Vector(0, 0)
     var direction: Direction = Direction.E
 
     fun apply(instruction: Instruction) {
@@ -50,7 +50,7 @@ class Ship1 {
 }
 
 class Ship2 {
-    var coord = Coord(0, 0)
+    var coord = Vector(0, 0)
     var waypoint = Vector(10, 1) // relative to the ship
 
     fun apply(instruction: Instruction) {
@@ -72,6 +72,8 @@ data class Vector(val x: Int, val y: Int) {
     operator fun plus(v: Vector): Vector = Vector(x + v.x, y + v.y)
     operator fun times(dist: Distance): Vector = Vector(dist*x, dist*y)
 
+    fun manhattan(): Int = x.absoluteValue + y.absoluteValue
+
     fun rotateLeft(degrees: Angle): Vector = when(degrees.plus(360).div(90).mod(4)) {
         0 -> this
         1 -> Vector(-y, x)
@@ -79,11 +81,6 @@ data class Vector(val x: Int, val y: Int) {
         3 -> Vector(y, -x)
         else -> error("could not rotate $this $degrees degrees left")
     }
-}
-
-data class Coord(val x: Int, val y: Int) {
-    operator fun plus(v: Vector): Coord = Coord(x + v.x, y + v.y)
-    fun manhattan(): Int = x.absoluteValue + y.absoluteValue
 }
 
 enum class Direction(val dx: Int, val dy: Int) {
