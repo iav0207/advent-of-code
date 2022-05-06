@@ -2,6 +2,8 @@
 
 Helping Santa deliver all the Christmas gifts by solving coding katas at https://adventofcode.com/
 
+[Jump to How-Tos](#how-to)
+
 ## Index
 
 - [2020](https://adventofcode.com/2020)
@@ -70,9 +72,18 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + [Day 25](./2021/day_25)  Python
     * Sea Cucumber
 
-### How to generate the index
+## How To
+
+### Generate the index
 
 ```bash
-./toc.sh
+make toc
+```
+
+### Initialize a day
+
+Only Kotlin for now:
+```
+make day_kt year=2099 day=99 # will initialize Kotlin solution for day 99 of year 2099
 ```
 
