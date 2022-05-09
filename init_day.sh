@@ -38,7 +38,12 @@ function init_day() {
     new_dir="${year}/day_${day_padded}"
     use_template "templates/${lang}" "${new_dir}"
     cd $new_dir
-    vim -c ':so .vimrc' -c ':vne input.txt' "Advent${day_padded}.kt"
+    open https://adventofcode.com/$year/day/$day/input
+    open https://adventofcode.com/$year/day/$day
+    vim                             \
+        -c ':so .vimrc'             \
+        -c ':vne input.txt'         \
+        "Advent${day_padded}.kt"
 }
 
 set -e
