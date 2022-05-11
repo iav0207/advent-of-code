@@ -31,6 +31,10 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
     * Running some sort of the Game of Life to find the equilibrium of occupied seats distribution in a waiting room.
   + [Day 12](./2020/day_12)  Kotlin
     * Navigating a ship according to given instructions. Simple vector abstractions.
+  + [Day 13](./2020/day_13)  Kotlin
+    * Finding timestamp when bus schedule aligns busses at just the right intervals. Chinese remainder theorem / dynamic programming.
+  + [Day 14](./2020/day_14)  Kotlin
+    * Bit operations and masking. It went terrible, with many mistakes along the way. Maybe I should have used char arrays instead of numbers.
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
   + [Day 02](./2021/day_02)  Bash
