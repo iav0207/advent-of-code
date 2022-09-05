@@ -35,6 +35,9 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
     * Finding timestamp when bus schedule aligns busses at just the right intervals. Chinese remainder theorem / dynamic programming.
   + [Day 14](./2020/day_14)  Kotlin
     * Bit operations and masking. It went terrible, with many mistakes along the way. Maybe I should have used char arrays instead of numbers.
+  + [Day 15](./2020/day_15)  Kotlin
+    * Elves game: say numbers in rounds depending on when the most recent number was previously spoken.
+
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
   + [Day 02](./2021/day_02)  Bash
