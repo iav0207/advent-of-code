@@ -89,8 +89,13 @@ make toc
 
 ### Initialize a day
 
-Only Kotlin for now:
 ```
-make day_kt year=2099 day=99 # will initialize Kotlin solution for day 99 of year 2099
+make day year=2099 day=99 lang=python # will initialize Python solution for day 99 of year 2099
+```
+
+To see the list of supported languages run
+
+```
+ls templates
 ```
 

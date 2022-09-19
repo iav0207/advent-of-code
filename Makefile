@@ -2,6 +2,11 @@
 toc:
 	./toc.sh
 
-day_kt:
-	./init_day.sh $(year) $(day) kotlin
+lang=kotlin
+
+day:
+	./init_day.sh $(year) $(day) $(lang)
+
+day_kt: lang=kotlin
+day_kt: day $(year) $(day)
 
