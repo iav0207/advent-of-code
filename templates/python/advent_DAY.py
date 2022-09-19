@@ -10,7 +10,7 @@ def debug(obj):
         print(str(obj))
 
 
-lines = sys.stdin.readlines()
+lines = sys.stdin.read().splitlines()
 
-print(lines)
+print('\n'.join(lines))
 
