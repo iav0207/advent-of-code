@@ -37,6 +37,8 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
     * Bit operations and masking. It went terrible, with many mistakes along the way. Maybe I should have used char arrays instead of numbers.
   + [Day 15](./2020/day_15)  Kotlin
     * Elves game: say numbers in rounds depending on when the most recent number was previously spoken.
+  + [Day 16](./2020/day_16)  Python
+      * Ticket translation. Given rules for each field and a set of tickets, map values to ticket fields.
 
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
