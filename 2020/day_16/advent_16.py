@@ -57,36 +57,31 @@ error_rate = 0
 valid_tickets = []
 
 for ticket in nearby_tickets:
-    error_increment = sum(val if all(not satisfies(val, rule) for rule in rules) else 0 for val in ticket)
-    error_rate += error_increment
-    if not error_increment:
+    invalid_values = [val for val in ticket if all(not satisfies(val, rule) for rule in rules)]
+    if invalid_values:
+        error_rate += sum(invalid_values)
+    else:
         valid_tickets.append(ticket)
 
 print(f'Error rate is {error_rate}')
 
-fields = ['unknown' for _ in rules]
+def candidate_column_nums(rule):
+    return [j for j in range(len(rules)) if all(satisfies(ticket[j], rule) for ticket in valid_tickets)]
 
-while 'unknown' in fields:
-    changed = False
-    debug(f'fields={fields}')
-    for ir, rule in enumerate(rules):
-        if rule.name in fields:
-            continue
-        valid_column_nums = []
-        for j in range(len(fields)):
-            if fields[j] != 'unknown':
-                continue
-            if all(satisfies(ticket[j], rule) for ticket in valid_tickets):
-                valid_column_nums.append(j)
-        debug(f'Rule {ir}: valid_column_nums={valid_column_nums}')
-        if len(valid_column_nums) == 1:
-            j = valid_column_nums[0]
-            changed = True
-            fields[j] = rule.name
-            debug(f'Field {j} is {rule.name}')
-    if not changed:
-        break
+fields = {r.name: {'col': None, 'candidates': candidate_column_nums(r)} for r in rules}
 
-result = reduce(lambda a, b: a * b, [val if 'departure' in fields[j] else 1 for j, val in enumerate(your_ticket)])
+def find_rule_w_singe_candidate():
+    return next(([k, v['candidates'][0]] for k, v in fields.items() if len(v['candidates']) == 1))
+
+for _ in range(len(fields)):
+    # debug(f'fields={fields}')
+    rule_name, col = find_rule_w_singe_candidate()
+    debug(f'field {col} is {rule_name}')
+    fields[rule_name]['col'] = col
+    for v in fields.values():
+        if col in v['candidates']:
+            v['candidates'].remove(col)
+
+result = reduce(lambda a, b: a * b, [your_ticket[v['col']] for k, v in fields.items() if 'departure' in k])
 print(f'Departure score of my ticket: {result}')
 
