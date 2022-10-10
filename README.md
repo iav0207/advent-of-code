@@ -39,6 +39,8 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
     * Elves game: say numbers in rounds depending on when the most recent number was previously spoken.
   + [Day 16](./2020/day_16)  Python
       * Ticket translation. Given rules for each field and a set of tickets, map values to ticket fields.
+  + [Day 17](./2020/day_17)  Python 
+    * Conway Cubes (Game of Life kind of problem, 3- and 4-dimensional)
 
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
