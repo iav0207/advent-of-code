@@ -13,28 +13,28 @@ def debug(obj):
 
 lines = sys.stdin.read().splitlines()
 
-print('\n'.join(lines))
-
 
 @dataclass
 class Cube:
     x: int
     y: int
     z: int
+    w: int
 
     def neighbors(self):
         for x in range(self.x - 1, self.x + 2):
             for y in range(self.y - 1, self.y + 2):
                 for z in range(self.z - 1, self.z + 2):
-                    if x == self.x and y == self.y and z == self.z:
-                        continue
-                    yield Cube(x, y, z)
+                    for w in range(self.w - 1, self.w + 2):
+                        if x == self.x and y == self.y and z == self.z and w == self.w:
+                            continue
+                        yield Cube(x, y, z, w)
 
     def __hash__(self):
-        return hash((self.x, self.y, self.z))
+        return hash((self.x, self.y, self.z, self.w))
 
     def __eq__(self, o):
-        return self.x == o.x and self.y == o.y and self.z == o.z
+        return self.x == o.x and self.y == o.y and self.z == o.z and self.w == o.w
 
 
 @dataclass
@@ -67,7 +67,7 @@ current = State(set())
 for x, line in enumerate(lines):
     for y, c in enumerate(line):
         if c == '#':
-            current.active.add(Cube(x, y, 0))
+            current.active.add(Cube(x, y, 0, 0))
 
 for step in range(6):
     current = current.evaluate_new()
