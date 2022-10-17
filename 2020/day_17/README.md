@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2020/day/17
 
-Desc Conway Cubes (Game of Life kind of problem, 3- and 4-dimensional)
+Desc Conway Cubes (Game of Life kind of problem, 3- and 4-dimensional).
 
 Execution
 
