@@ -9,7 +9,9 @@ fun main(vararg args: String) {
 
     debug { input }
 
-    val unparsedRules = input.filter { ":" in it }.associate { it.substringBefore(":") to it.substringAfter(": ") }
+    val unparsedRules: Map<String, String> = input.filter { ":" in it }
+        .associate { it.substringBefore(":") to it.substringAfter(": ") }
+
     val rules: MutableMap<String, Rule> = mutableMapOf()
 
     fun parseRule(id: String): Rule {
@@ -69,7 +71,7 @@ class SeqRule(override val id: String, private val subrules: List<Rule>) : Rule 
 
     private fun matchAndAdvance(str: String, ruleNum: Int, cursor: Int) : Sequence<Int> {
         if (cursor > str.length) return sequenceOf()
-        if (ruleNum in subrules.indices) { // there must be a bug in this function
+        if (ruleNum in subrules.indices) {
             return subrules[ruleNum].matchAndAdvance(str.substring(cursor)).flatMap { advance ->
                 matchAndAdvance(str, ruleNum + 1, cursor + advance)
             }.distinct().onEach { debug { "SeqRule $id matches '$str', advance $it " } }

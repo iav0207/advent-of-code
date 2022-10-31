@@ -43,6 +43,8 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
     * Conway Cubes (Game of Life kind of problem, 3- and 4-dimensional).
   + [Day 18](./2020/day_18)  Python
     * Funky arithmetic operation order.
+  + [Day 19](./2020/day_19)  Kotlin
+    * Matching messages against recursive rules (finite state automaton).
 
 - [2021](https://adventofcode.com/2021)
   + [Day 01](./2021/day_01)  Python
