@@ -8,14 +8,24 @@ import advent2020.day19.State.START
 var debug = false
 fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 
+var part = 1
+
 fun main(vararg args: String) {
     debug = "-d" in args
+    if ("2" in args) part = 2
     val input = generateSequence { readLine()?.trimEnd() }.toList()
 
     debug { input }
 
     val unparsedRules: Map<ID, String> = input.filter { ":" in it }
         .associate { it.substringBefore(":") to it.substringAfter(": ") }
+        .toMutableMap()
+        .apply {
+            if (part == 2) {
+                put("8", "42 | 42 8")
+                put("11", "42 31 | 42 11 31")
+            }
+        }
 
     val rules: Map<ID, Rule> = unparsedRules
         .mapValues { (id, ruleStr) ->
@@ -60,7 +70,7 @@ interface NFA {
 private class RealNFA(
     override val ruleId: ID,
     private val epsilons: MutableSet<NFA> = mutableSetOf(),
-    val subs: MutableList<NFA> = mutableListOf(),
+    private val subs: MutableList<NFA> = mutableListOf(),
     private val literals: MutableSet<Char> = mutableSetOf(),
 ) : NFA {
     override var state: State = START
@@ -90,9 +100,6 @@ private class RealNFA(
             debug { "    -> [$ruleId] $state" }
             debug { "    -> [${ruleId}] sub.size = ${subs.size} sub[0] state: ${subs.firstOrNull()?.state}" }
         }
-        if (ruleId == "1") {
-            debug { "   -> [$ruleId] [$state] epsilons ${epsilons.map { it.state }}" }
-        }
     }
 
     private fun stepLiterals(input: Char) {
@@ -102,9 +109,6 @@ private class RealNFA(
     }
 
     private fun stepEpsilons(input: Char) {
-        if (ruleId == "1") {
-            debug { " [$ruleId] [$state] epsilons ${epsilons.map { it.state }}" }
-        }
         epsilons.forEach { it.step(input) }
         if (epsilons.any { it.state == ACCEPT }) state = ACCEPT
         epsilons.removeIf { it.terminated }
@@ -112,9 +116,12 @@ private class RealNFA(
 
     private fun stepSubs(input: Char) {
         if (subs.isEmpty()) return
+
         subs.first().step(input)
-        if (subs.first().state == REJECT) subs.clear()
-        else if (subs.first().state == ACCEPT) {
+
+        if (subs.first().state == REJECT) {
+            subs.clear()
+        } else if (subs.first().state == ACCEPT) {
             subs.removeAt(0)
             if (subs.isEmpty()) state = ACCEPT
         }

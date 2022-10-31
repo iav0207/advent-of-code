@@ -2,12 +2,11 @@ outdir = out
 cls = Advent19
 jarname = advent_19.jar
 
-all:
-	make build
-	make run
-
-run:
+part1:
 	java -jar $(outdir)/$(jarname)
+
+part2:
+	java -jar $(outdir)/$(jarname) 2
 
 debug:
 	java -jar $(outdir)/$(jarname) -d
