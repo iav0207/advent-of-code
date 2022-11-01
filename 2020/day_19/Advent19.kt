@@ -1,8 +1,8 @@
 package advent2020.day19
 
-import advent2020.day19.State.ACCEPT
+import advent2020.day19.State.ACCEPTED
 import advent2020.day19.State.INTERMEDIATE
-import advent2020.day19.State.REJECT
+import advent2020.day19.State.REJECTED
 import advent2020.day19.State.START
 
 var debug = false
@@ -40,11 +40,8 @@ fun main(vararg args: String) {
 
     fun String.matches(): Boolean {
         val matcher = NFAFactory(rules).instantiate("0")
-        for (c in this) {
-            if (matcher.terminated) return false
-            matcher.step(c)
-        }
-        val match = matcher.state == ACCEPT
+        forEach { matcher.step(it) }
+        val match = matcher.state == ACCEPTED
         return match.also { if (it) debug { "'$this' matches" }}
     }
 
@@ -58,7 +55,7 @@ fun main(vararg args: String) {
 
 typealias ID = String
 
-enum class State { START, INTERMEDIATE, ACCEPT, REJECT }
+enum class State { START, INTERMEDIATE, ACCEPTED, REJECTED }
 
 interface NFA {
     val ruleId: ID
@@ -79,7 +76,7 @@ private class RealNFA(
         private set
 
     override fun step(input: Char) {
-        if (terminated) return
+        if (terminated) return reject()
 
         if (ruleId == "0") {
             debug { "NFA $ruleId [$state] step $input" }
@@ -94,7 +91,7 @@ private class RealNFA(
 
         if (noMoreTransitions()) {
             terminated = true
-            if (state != ACCEPT) state = REJECT
+            if (state != ACCEPTED) state = REJECTED
         }
         if (ruleId == "0") {
             debug { "    -> [$ruleId] $state" }
@@ -104,13 +101,13 @@ private class RealNFA(
 
     private fun stepLiterals(input: Char) {
         if (literals.isEmpty()) return
-        state = if (input in literals) ACCEPT else REJECT
+        state = if (input in literals) ACCEPTED else REJECTED
         literals.remove(input)
     }
 
     private fun stepEpsilons(input: Char) {
         epsilons.forEach { it.step(input) }
-        if (epsilons.any { it.state == ACCEPT }) state = ACCEPT
+        if (epsilons.any { it.state == ACCEPTED }) state = ACCEPTED
         epsilons.removeIf { it.terminated }
     }
 
@@ -119,15 +116,19 @@ private class RealNFA(
 
         subs.first().step(input)
 
-        if (subs.first().state == REJECT) {
+        if (subs.first().state == REJECTED) {
             subs.clear()
-        } else if (subs.first().state == ACCEPT) {
+        } else if (subs.first().state == ACCEPTED) {
             subs.removeAt(0)
-            if (subs.isEmpty()) state = ACCEPT
+            if (subs.isEmpty()) state = ACCEPTED
         }
     }
 
     private fun noMoreTransitions() = literals.isEmpty() && epsilons.isEmpty() && subs.isEmpty()
+
+    private fun reject() {
+        state = REJECTED
+    }
 }
 
 class NFAFactory(val spec: Map<ID, Rule>) {
