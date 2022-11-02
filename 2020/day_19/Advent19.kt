@@ -8,15 +8,16 @@ import advent2020.day19.State.START
 var debug = false
 fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 
-var part = 1
-
 fun main(vararg args: String) {
     debug = "-d" in args
-    if ("2" in args) part = 2
     val input = generateSequence { readLine()?.trimEnd() }.toList()
 
     debug { input }
 
+    (1..2).forEach { runPart(it, input) }
+}
+
+fun runPart(part: Int, input: List<String>) {
     val unparsedRules: Map<ID, String> = input.filter { ":" in it }
         .associate { it.substringBefore(":") to it.substringAfter(": ") }
         .toMutableMap()
@@ -40,17 +41,19 @@ fun main(vararg args: String) {
 
     fun String.matches(): Boolean {
         val matcher = NFAFactory(rules).instantiate("0")
-        forEach { matcher.step(it) }
+        forEach {
+            matcher.step(it)
+        }
         val match = matcher.state == ACCEPTED
         return match.also { if (it) debug { "'$this' matches" }}
     }
 
-    val messages = input.filter { ":" !in it && it.isNotEmpty() }
+    val messages = input.filter { ":" !in it && it.isNotEmpty() }.sorted()
     debug { messages }
 
     val matchCount = messages.count { it.matches() }
 
-    print("Part 1: $matchCount")
+    println("Part $part: $matchCount")
 }
 
 typealias ID = String
@@ -78,11 +81,6 @@ private class RealNFA(
     override fun step(input: Char) {
         if (terminated) return reject()
 
-        if (ruleId == "0") {
-            debug { "NFA $ruleId [$state] step $input" }
-            debug { "sub[0] state: ${subs.firstOrNull()?.state}" }
-        }
-
         state = INTERMEDIATE
 
         stepLiterals(input)
@@ -92,10 +90,6 @@ private class RealNFA(
         if (noMoreTransitions()) {
             terminated = true
             if (state != ACCEPTED) state = REJECTED
-        }
-        if (ruleId == "0") {
-            debug { "    -> [$ruleId] $state" }
-            debug { "    -> [${ruleId}] sub.size = ${subs.size} sub[0] state: ${subs.firstOrNull()?.state}" }
         }
     }
 
@@ -108,23 +102,23 @@ private class RealNFA(
     private fun stepEpsilons(input: Char) {
         epsilons.forEach { it.step(input) }
         if (epsilons.any { it.state == ACCEPTED }) state = ACCEPTED
-        epsilons.removeIf { it.terminated }
     }
 
     private fun stepSubs(input: Char) {
         if (subs.isEmpty()) return
 
-        subs.first().step(input)
+        subs.firstOrNull { it.state != ACCEPTED }?.step(input) ?: run { subs.lastOrNull()?.step(input) }
 
-        if (subs.first().state == REJECTED) {
+        if (subs.any { it.state == REJECTED }) {
             subs.clear()
-        } else if (subs.first().state == ACCEPTED) {
-            subs.removeAt(0)
-            if (subs.isEmpty()) state = ACCEPTED
+        } else if (subs.all { it.state == ACCEPTED }) {
+            state = ACCEPTED
         }
     }
 
-    private fun noMoreTransitions() = literals.isEmpty() && epsilons.isEmpty() && subs.isEmpty()
+    private fun noMoreTransitions() = literals.isEmpty()
+            && epsilons.all { it.terminated }
+            && subs.all { terminated }
 
     private fun reject() {
         state = REJECTED
