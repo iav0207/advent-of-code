@@ -8,13 +8,21 @@ import advent2020.day19.State.START
 var debug = false
 fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 
+val matches: MutableMap<ID, MutableSet<String>> = sortedMapOf()
+
 fun main(vararg args: String) {
     debug = "-d" in args
     val input = generateSequence { readLine()?.trimEnd() }.toList()
 
     debug { input }
 
-    (1..2).forEach { runPart(it, input) }
+    val interestingKeys = setOf("8", "42", "31", "11", "42 31", "42 11 31")
+    (1..2).forEach {
+        runPart(it, input)
+        matches
+            .filterKeys { id -> id in interestingKeys }
+            .forEach { (id, strings) -> println("$id: $strings") }
+    }
 }
 
 fun runPart(part: Int, input: List<String>) {
@@ -48,7 +56,7 @@ fun runPart(part: Int, input: List<String>) {
         return match.also { if (it) debug { "'$this' matches" }}
     }
 
-    val messages = input.filter { ":" !in it && it.isNotEmpty() }.sorted()
+    val messages = input.filter { ":" !in it && it.isNotEmpty() }.sortedBy { it.length }
     debug { messages }
 
     val matchCount = messages.count { it.matches() }
@@ -78,7 +86,10 @@ private class RealNFA(
     override var terminated: Boolean = false
         private set
 
+    private val string = StringBuilder()
+
     override fun step(input: Char) {
+        string.append(input)
         if (terminated) return reject()
 
         state = INTERMEDIATE
@@ -91,6 +102,7 @@ private class RealNFA(
             terminated = true
             if (state != ACCEPTED) state = REJECTED
         }
+        updateCache()
     }
 
     private fun stepLiterals(input: Char) {
@@ -109,10 +121,34 @@ private class RealNFA(
 
         subs.firstOrNull { it.state != ACCEPTED }?.step(input) ?: run { subs.lastOrNull()?.step(input) }
 
+        if (false && "11" in ruleId && "11" in subs.map { it.ruleId }) {
+            debug { "xu-xu" }
+            val itemLength = 5
+//            check(matches["31"]?.all { it.length == itemLength } ?: true)
+//            check(matches["42"]?.all { it.length == itemLength } ?: true)
+            val curStringLength = string.length
+            if (curStringLength % (2 * itemLength) != 0) return
+
+            val matches = string.chunked(itemLength)
+                .withIndex()
+                .all { (sliceNum, slice) ->
+                    val ruleToMatchWith = if (sliceNum < string.length / 2) "42" else "31"
+                    matches[ruleToMatchWith]?.contains(slice) ?: false
+                }
+            if (matches) state = ACCEPTED
+            return
+        }
+
         if (subs.any { it.state == REJECTED }) {
             subs.clear()
         } else if (subs.all { it.state == ACCEPTED }) {
             state = ACCEPTED
+        }
+    }
+
+    private fun updateCache() {
+        if (state == ACCEPTED) {
+            matches.computeIfAbsent(ruleId) { mutableSetOf() }.add(string.toString())
         }
     }
 

@@ -1,0 +1,21 @@
+42: "a"
+11: 42 31 | 42 11 31
+0: 11
+31: "b"
+
+baa
+aaaaaaabbbbbbb
+a
+b
+aa
+bb
+ba
+ab
+aab
+abb
+aabb
+aaab
+abbb
+aaabbb
+aaaaaaabbbbbbb
+aaaaaaabbbbbbb
