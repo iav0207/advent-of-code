@@ -56,7 +56,7 @@ fun runPart(part: Int, input: List<String>) {
         return match.also { if (it) debug { "'$this' matches" }}
     }
 
-    val messages = input.filter { ":" !in it && it.isNotEmpty() }.sortedBy { it.length }
+    val messages = input.filter { ":" !in it && it.isNotEmpty() }.sorted()
     debug { messages }
 
     val matchCount = messages.count { it.matches() }
@@ -121,13 +121,17 @@ private class RealNFA(
 
         subs.firstOrNull { it.state != ACCEPTED }?.step(input) ?: run { subs.lastOrNull()?.step(input) }
 
+        // I cannot make the test fail :/
+        // need to find a minimal reproducible example and then fix it with the following workaround (it works incorrectly now):
+
         if (false && "11" in ruleId && "11" in subs.map { it.ruleId }) {
-            debug { "xu-xu" }
             val itemLength = 5
 //            check(matches["31"]?.all { it.length == itemLength } ?: true)
 //            check(matches["42"]?.all { it.length == itemLength } ?: true)
             val curStringLength = string.length
             if (curStringLength % (2 * itemLength) != 0) return
+
+            debug { "xu-xu $curStringLength" }
 
             val matches = string.chunked(itemLength)
                 .withIndex()

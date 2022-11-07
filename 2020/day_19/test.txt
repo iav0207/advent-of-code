@@ -18,4 +18,3 @@ aaab
 abbb
 aaabbb
 aaaaaaabbbbbbb
-aaaaaaabbbbbbb
