@@ -1,15 +1,9 @@
 package advent2020.day19
 
-import advent2020.day19.State.ACCEPTED
-import advent2020.day19.State.INTERMEDIATE
-import advent2020.day19.State.REJECTED
-import advent2020.day19.State.START
-import java.util.Stack
-
 var debug = false
 fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 
-val matches: MutableMap<ID, MutableSet<String>> = sortedMapOf()
+var part = 1
 
 fun main(vararg args: String) {
     debug = "-d" in args
@@ -17,210 +11,76 @@ fun main(vararg args: String) {
 
     debug { input }
 
-    val interestingKeys = setOf("8", "42", "31", "11", "42 31", "42 11 31")
-    (1..2).forEach {
-        runPart(it, input)
-        matches
-            .filterKeys { id -> id in interestingKeys }
-            .forEach { (id, strings) -> println("$id: $strings") }
-    }
-}
-
-fun runPart(part: Int, input: List<String>) {
-    val unparsedRules: Map<ID, String> = input.filter { ":" in it }
+    val unparsedRules: Map<String, String> = input.filter { ":" in it }
         .associate { it.substringBefore(":") to it.substringAfter(": ") }
-        .toMutableMap()
-        .apply {
-            if (part == 2) {
-                put("8", "42 | 42 8")
-                put("11", "42 31 | 42 11 31")
-            }
-        }
 
-    val rules: Map<ID, Rule> = unparsedRules
-        .mapValues { (id, ruleStr) ->
-            Rule(id).apply {
-                when {
-                    '"' in ruleStr -> literal(ruleStr[1])
-                    '|' in ruleStr -> union(ruleStr.split(" | "))
-                    else -> concat(ruleStr.split(' '))
-                }
-            }
-        }.also { debug { it } }
+    val rules: MutableMap<String, Rule> = mutableMapOf()
 
-    fun String.matches(): Boolean {
-        val matcher = NFAFactory(rules).instantiate("0")
-        forEach {
-            matcher.step(it)
-        }
-        val match = matcher.state == ACCEPTED
-        return match.also { if (it) debug { "'$this' matches" }}
+    fun parseRule(id: String): Rule {
+        if (id in rules) return rules[id]!!
+        val ruleStr = unparsedRules[id] ?: id // !!!
+        return when {
+            "\"" in ruleStr -> SimpleRule(id, ruleStr[1])
+            "|" in ruleStr -> OrRule(id, ruleStr.split(" | ").map { parseRule(it) })
+            else -> SeqRule(id, ruleStr.split(" ").map { parseRule(it) })
+        }.also { if (" " !in id) rules.put(id, it) }
     }
+    val rule0 = parseRule("0")
+    debug { rules }
 
-    val messages = input.filter { ":" !in it && it.isNotEmpty() }.sorted()
+    val messages = input.filter { ":" !in it && it.isNotEmpty() }
     debug { messages }
 
-    val matchCount = messages.count { it.matches() }
+    val matchCount = messages.count { msg ->
+        rule0.matchAndAdvance(msg).any { adv -> run { adv == msg.length }.also { debug { "final match '$msg' adv $adv" } } }
+    }
 
-    println("Part $part: $matchCount")
+    print("Part 1: $matchCount")
 }
 
-typealias ID = String
-
-enum class State { START, INTERMEDIATE, ACCEPTED, REJECTED }
-
-interface NFA {
-    val ruleId: ID
-    val state: State
-    val terminated: Boolean
-    fun step(input: Char)
+interface Rule {
+    val id: String
+    fun matchAndAdvance(str: String): Sequence<Int>
 }
 
-private class RealNFA(
-    override val ruleId: ID,
-    private val epsilons: MutableSet<NFA> = mutableSetOf(),
-    private val subs: MutableList<NFA> = mutableListOf(),
-    private val literals: MutableSet<Char> = mutableSetOf(),
-) : NFA {
-    override var state: State = START
-        private set
-    override var terminated: Boolean = false
-        private set
+class SimpleRule(override val id: String, private val char: Char) : Rule {
+    override fun matchAndAdvance(str: String): Sequence<Int> = if (match(str)) sequenceOf(1) else sequenceOf()
 
-    private val string = StringBuilder()
-
-    override fun step(input: Char) {
-        string.append(input)
-        if (terminated) return reject()
-
-        state = INTERMEDIATE
-
-        stepLiterals(input)
-        stepEpsilons(input)
-        stepSubs(input)
-
-        if (noMoreTransitions()) {
-            terminated = true
-            if (state != ACCEPTED) state = REJECTED
-        }
-        updateCache()
+    private fun match(str: String) = str.startsWith(char).also {
+        debug { if (it) "$this matches $str advance 1" else "$this does not match $str" }
     }
 
-    private fun stepLiterals(input: Char) {
-        if (literals.isEmpty()) return
-        state = if (input in literals) ACCEPTED else REJECTED
-        literals.remove(input)
-    }
 
-    private fun stepEpsilons(input: Char) {
-        epsilons.forEach { it.step(input) }
-        if (epsilons.any { it.state == ACCEPTED }) state = ACCEPTED
-    }
-
-    private fun stepSubs(input: Char) {
-        if (subs.isEmpty()) return
-
-        subs.firstOrNull { it.state != ACCEPTED }?.step(input) ?: run { subs.lastOrNull()?.step(input) }
-
-        // I cannot make the test fail :/
-        // need to find a minimal reproducible example and then fix it with the following workaround (it works incorrectly now):
-
-        if ("11" in ruleId && "11" in subs.map { it.ruleId }) {
-//            val itemLength = 5 // TODO is this why my test is breaking when I introduce the workaround?
-//            check(matches["31"]?.all { it.length == itemLength } ?: true)
-//            check(matches["42"]?.all { it.length == itemLength } ?: true)
-            val curStringLength = string.length
-            if (curStringLength % (2 * itemLength) != 0) return
-
-            for (firstRuleLength in 1 until curStringLength - 1) {
-                val firstRuleCursorStack = Stack<Int>().apply { add(0) }
-                for (advance in 1 .. firstRuleLength) {
-                    val last = firstRuleCursorStack.peek()
-
-                }
-            }
-
-            fun matchChunks(substring: String, matchRuleID: ID): Sequence<Int> = sequence { // returns number of chunks
-            }
-//            debug { "xu-xu $curStringLength" }
-            for (itemLength in 1 until string.length)
-
-            val matches = string.chunked(itemLength)
-                .withIndex()
-                .all { (sliceNum, slice) ->
-                    val ruleToMatchWith = if (sliceNum < string.length / 2) "42" else "31"
-                    matches[ruleToMatchWith]?.contains(slice) ?: false
-                }
-            if (matches) state = ACCEPTED
-            return
-        }
-
-        if (subs.any { it.state == REJECTED }) {
-            subs.clear()
-        } else if (subs.all { it.state == ACCEPTED }) {
-            state = ACCEPTED
-        }
-    }
-
-    fun matchChunks(string: String, matchRuleID: ID, startFrom: Int): Sequence<Int> = sequence { // returns number of chunks
-        var advance = 1
-        while (startFrom + advance < string.length) {
-            if (matches[matchRuleID]!!.contains(string.substring(startFrom until startFrom + advance))) {
-
-            }
-        }
-    }
-
-    private fun updateCache() {
-        if (state == ACCEPTED) {
-            matches.computeIfAbsent(ruleId) { mutableSetOf() }.add(string.toString())
-        }
-    }
-
-    private fun noMoreTransitions() = literals.isEmpty()
-            && epsilons.all { it.terminated }
-            && subs.all { terminated }
-
-    private fun reject() {
-        state = REJECTED
-    }
+    override fun toString() = "SimpleRule $id"
 }
 
-class NFAFactory(val spec: Map<ID, Rule>) {
-    fun instantiate(id: ID): NFA = if (' ' in id) instantiateConcatenation(id) else ProxyNFA(id)
-
-    private fun instantiateConcatenation(id: ID) = RealNFA(
-        ruleId = id,
-        subs = id.split(' ').map { instantiate(it) }.toMutableList(),
-    )
-
-    private fun instantiateReal(id: ID) = instantiateReal(spec[id]!!)
-
-    private fun instantiateReal(rule: Rule): NFA = RealNFA(
-        ruleId = rule.id,
-        epsilons = rule.epsilons.map { instantiate(it) }.toMutableSet(),
-        subs = rule.subs.map { instantiate(it) }.toMutableList(),
-        literals = rule.literals.toMutableSet(),
-    )
-
-    private inner class ProxyNFA(override val ruleId: ID) : NFA {
-        private val delegate = lazy { instantiateReal(ruleId) }
-        override val state: State get() = delegate.value.state
-        override val terminated: Boolean get() = delegate.value.terminated
-
-        override fun step(input: Char) = Unit.also { delegate.value.step(input) }
+class OrRule(override val id: String, private val subrules: Collection<Rule>) : Rule {
+    override fun matchAndAdvance(str: String): Sequence<Int> {
+        return subrules.asSequence()
+            .flatMap { it.matchAndAdvance(str) }
+            .distinct()
+            .onEach { debug { "OrRule $id matches '$str', advance $it" } }
     }
+
+    override fun toString() = "OrRule $id"
 }
 
-class Rule(val id: ID) {
-    val epsilons: MutableSet<ID> = mutableSetOf()
-    val subs: MutableList<ID> = mutableListOf()
-    val literals: MutableSet<Char> = mutableSetOf()
+class SeqRule(override val id: String, private val subrules: List<Rule>) : Rule {
+    override fun matchAndAdvance(str: String): Sequence<Int> {
+        debug { "Matching SeqRule $id against '$str'" }
+        return matchAndAdvance(str, 0, 0).distinct()
+    }
 
-    fun literal(char: Char) = apply { literals.add(char) }
-    fun concat(ids: Iterable<ID>) = apply { ids.forEach { subs.add(it) } }
-    fun union(ids: Iterable<ID>) = apply { ids.forEach { epsilons.add(it) } }
+    private fun matchAndAdvance(str: String, ruleNum: Int, cursor: Int) : Sequence<Int> {
+        if (cursor > str.length) return sequenceOf()
+        if (ruleNum in subrules.indices) {
+            return subrules[ruleNum].matchAndAdvance(str.substring(cursor)).flatMap { advance ->
+                matchAndAdvance(str, ruleNum + 1, cursor + advance)
+            }.distinct().onEach { debug { "SeqRule $id matches '$str', advance $it " } }
+        }
+        return sequenceOf(cursor)
+    }
 
-    override fun toString(): String = "Rule $id"
+    override fun toString() = "SeqRule $id"
 }
 
