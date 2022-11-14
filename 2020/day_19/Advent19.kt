@@ -4,6 +4,7 @@ import advent2020.day19.State.ACCEPTED
 import advent2020.day19.State.INTERMEDIATE
 import advent2020.day19.State.REJECTED
 import advent2020.day19.State.START
+import java.util.Stack
 
 var debug = false
 fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
@@ -124,14 +125,25 @@ private class RealNFA(
         // I cannot make the test fail :/
         // need to find a minimal reproducible example and then fix it with the following workaround (it works incorrectly now):
 
-        if (false && "11" in ruleId && "11" in subs.map { it.ruleId }) {
-            val itemLength = 5
+        if ("11" in ruleId && "11" in subs.map { it.ruleId }) {
+//            val itemLength = 5 // TODO is this why my test is breaking when I introduce the workaround?
 //            check(matches["31"]?.all { it.length == itemLength } ?: true)
 //            check(matches["42"]?.all { it.length == itemLength } ?: true)
             val curStringLength = string.length
             if (curStringLength % (2 * itemLength) != 0) return
 
-            debug { "xu-xu $curStringLength" }
+            for (firstRuleLength in 1 until curStringLength - 1) {
+                val firstRuleCursorStack = Stack<Int>().apply { add(0) }
+                for (advance in 1 .. firstRuleLength) {
+                    val last = firstRuleCursorStack.peek()
+
+                }
+            }
+
+            fun matchChunks(substring: String, matchRuleID: ID): Sequence<Int> = sequence { // returns number of chunks
+            }
+//            debug { "xu-xu $curStringLength" }
+            for (itemLength in 1 until string.length)
 
             val matches = string.chunked(itemLength)
                 .withIndex()
@@ -147,6 +159,15 @@ private class RealNFA(
             subs.clear()
         } else if (subs.all { it.state == ACCEPTED }) {
             state = ACCEPTED
+        }
+    }
+
+    fun matchChunks(string: String, matchRuleID: ID, startFrom: Int): Sequence<Int> = sequence { // returns number of chunks
+        var advance = 1
+        while (startFrom + advance < string.length) {
+            if (matches[matchRuleID]!!.contains(string.substring(startFrom until startFrom + advance))) {
+
+            }
         }
     }
 
