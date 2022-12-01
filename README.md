@@ -86,6 +86,9 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
   + Day 24 Not done
   + [Day 25](./2021/day_25)  Python
     * Sea Cucumber
+- [2022](https://adventofcode.com/2022)
+  + [Day 01](./2022/day_01)  Python 
+    * Finding an elf with most calories (max and sum)
 
 ## How To
 
