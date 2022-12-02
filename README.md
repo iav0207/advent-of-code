@@ -89,6 +89,9 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
 - [2022](https://adventofcode.com/2022)
   + [Day 01](./2022/day_01)  Python 
     * Finding an elf with most calories (max and sum)
+  + [Day 02](./2022/day_02)  Python 
+      * Rock paper scissors
+
 
 ## How To
 
