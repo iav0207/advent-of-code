@@ -91,6 +91,8 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
     * Finding an elf with most calories (max and sum)
   + [Day 02](./2022/day_02)  Python 
       * Rock paper scissors
+  + [Day 03](./2022/day_03)  KotlinScript
+      * Rucksack reorg. Sets intersection and array chunking.
 
 
 ## How To

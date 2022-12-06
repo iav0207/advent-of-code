@@ -13,6 +13,7 @@ function langof() {
             'jl')         echo Julia            ;;
             'js')         echo JavaScript       ;;
             'kt')         echo Kotlin           ;;
+            'kts')        echo KotlinScript     ;;
             'pl')         echo Perl             ;;
             'py')         echo Python           ;;
             'r')          echo R                ;;
