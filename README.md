@@ -93,6 +93,8 @@ Helping Santa deliver all the Christmas gifts by solving coding katas at https:/
       * Rock paper scissors
   + [Day 03](./2022/day_03)  KotlinScript
       * Rucksack reorg. Sets intersection and array chunking.
+  + [Day 04](./2022/day_04)  JavaScript 
+      * Interval inclusions and overlaps
 
 
 ## How To
