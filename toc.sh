@@ -26,8 +26,12 @@ function langof() {
     esac
 }
 
-for year in $(echo 20*); do
-    echo "- [$year](https://adventofcode.com/$year)"
+printf "# Index\n\n"
+
+for year in $(echo 20* | sort); do echo "- [${year}](#${year})"; done
+
+for year in $(echo 20* | sort); do
+    printf "\n## ${year}\n\nhttps://adventofcode.com/$year\n\n[Jump to top](#index)\n\n"
     min_day=$(ls $year | grep day_ | cut -d'_' -f2- | head -n1)
     max_day=$(ls $year | grep day_ | cut -d'_' -f2- | tail -n1)
     for day in $(seq -f '%02g' $min_day $max_day); do
@@ -36,8 +40,8 @@ for year in $(echo 20*); do
         [ -d "${path}" ] || continue
         langs=$(ls $path| while read src; do echo $(langof $src); done | sort -u | tr '\n' ' ')
         desc=$(grep -r '^Desc ' $path | cut -d':' -f2- | cut -d' ' -f2-)
-        echo "  + [Day ${day}](${path}) $langs"
-        [ -z "${desc}" ] || echo "    * ${desc}"
+        echo "- [Day ${day}](${path}) $langs"
+        [ -z "${desc}" ] || echo "  + ${desc}"
     done
 done
 
