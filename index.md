@@ -110,3 +110,5 @@ https://adventofcode.com/2022
   + Rucksack reorg. Sets intersection and array chunking.
 - [Day 04](./2022/day_04)  JavaScript 
   + Interval inclusions and overlaps
+- [Day 05](./2022/day_05)  JavaScript 
+  + Moving stack items around. Push, pop, slice.
