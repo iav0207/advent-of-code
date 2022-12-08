@@ -1,4 +1,4 @@
-Spec https://adventofcode.com/2022/day/02
+Spec https://adventofcode.com/2022/day/2
 
 Desc Rock paper scissors
 

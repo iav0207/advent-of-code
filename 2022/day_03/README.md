@@ -1,4 +1,4 @@
-Spec https://adventofcode.com/2022/day/03
+Spec https://adventofcode.com/2022/day/3
 
 Desc Rucksack reorg. Sets intersection and array chunking.
 

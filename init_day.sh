@@ -24,6 +24,7 @@ function rename_files() {
 function use_template() {
     template_dir=$1 destination=$2
     cp -R $template_dir $destination
+    replace_content $destination '{{{DAY_UNPADDED}}}' "${day}"
     replace_content $destination '{{{DAY}}}'    "${day_padded}"
     replace_content $destination '{{{YEAR}}}'   "${year}"
     rename_files    $destination 'DAY'          "${day_padded}"

@@ -1,4 +1,4 @@
-Spec https://adventofcode.com/2022/day/06
+Spec https://adventofcode.com/2022/day/6
 
 Desc Finding substrings consisting of distinct characters.
 

@@ -1,4 +1,4 @@
-Spec https://adventofcode.com/2022/day/05
+Spec https://adventofcode.com/2022/day/5
 
 Desc Moving stack items around. Push, pop, slice.
 
