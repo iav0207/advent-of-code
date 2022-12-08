@@ -112,3 +112,5 @@ https://adventofcode.com/2022
   + Interval inclusions and overlaps
 - [Day 05](./2022/day_05)  JavaScript 
   + Moving stack items around. Push, pop, slice.
+- [Day 06](./2022/day_06)  JavaScript 
+  + Finding substrings consisting of distinct characters.
