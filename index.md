@@ -114,7 +114,8 @@ https://adventofcode.com/2022
   + Moving stack items around. Push, pop, slice.
 - [Day 06](./2022/day_06)  JavaScript
   + Finding substrings consisting of distinct characters.
-  + Day 07 Not done
+- [Day 07](./2022/day_07)  JavaScript
+  + Reconstructing folder tree from terminal output.
 - [Day 08](./2022/day_08)  Python
   + Finding the best viewing spot in the elf forest. Running max, axes, coordinates.
 - [Day 09](./2022/day_09)  JavaScript
