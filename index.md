@@ -120,3 +120,5 @@ https://adventofcode.com/2022
   + Finding the best viewing spot in the elf forest. Running max, axes, coordinates.
 - [Day 09](./2022/day_09)  JavaScript
   + Moving a multi-knot rope around a 2D plane.
+- [Day 10](./2022/day_10)  Python
+  + Drawing an image on a screen using a pixel sprite that moves according to elementary CPU instructions.
