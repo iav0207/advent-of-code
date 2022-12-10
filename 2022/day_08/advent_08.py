@@ -18,17 +18,15 @@ debug(arr)
 
 visible = set()
 
-# axis == list of coords
-
-def look_from(axis, increment):
-    for c in axis:
+def look_from(coords, increment):
+    for c in coords:
         visible.add(c)
-    maxv = [arr[c[0]][c[1]] for c in axis]
+    maxv = [arr[c[0]][c[1]] for c in coords]
     while True:
         try:
-            axis = [(c[0] + increment[0], c[1] + increment[1]) for c in axis]
+            coords = [(c[0] + increment[0], c[1] + increment[1]) for c in coords]
             i = 0
-            for c in axis:
+            for c in coords:
                 if arr[c[0]][c[1]] > maxv[i]:
                     visible.add(c)
                     maxv[i] = arr[c[0]][c[1]]
