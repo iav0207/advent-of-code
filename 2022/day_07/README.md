@@ -11,5 +11,7 @@ Execution
 Output
 
 ```
+Part 1: 1325919
+Part 2: 2050735
 ```
 

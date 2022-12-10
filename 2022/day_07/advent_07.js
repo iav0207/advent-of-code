@@ -89,6 +89,7 @@ for (command of commands) {
 Array.prototype.sum = function() { return this.reduce((acc, it) => acc + it, 0); };
 
 let smallDirsSize = 0;
+const sizes = [];
 
 function countTotalSizeOf(directory) {
     ret =
@@ -100,6 +101,7 @@ function countTotalSizeOf(directory) {
         debug(`fileSizes: ${directory.fileSizes} = ${directory.fileSizes.sum()}`);
         debug(directory.children.map((it) => it.name));
     }
+    sizes.push(ret);
     return ret;
 }
 
@@ -110,5 +112,13 @@ function totalSizeOf(directory) {
 
 totalSizeOf(root);
 
+const [fsSpace, freeSpaceRequired] = [70000000, 30000000];
+const freeSpace = fsSpace - root.totalSize;
+const mustFreeUpSpace = freeSpaceRequired - freeSpace;
+debug(`mustFreeUpSpace = ${mustFreeUpSpace}`);
+
+const deletedDirSize = Math.min(...sizes.filter((size) => size >= mustFreeUpSpace));
+
 println(`Part 1: ${smallDirsSize}`);
+println(`Part 2: ${deletedDirSize}`);
 
