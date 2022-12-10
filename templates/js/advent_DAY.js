@@ -1,7 +1,7 @@
 #!/usr/local/bin/node
 
 const fs = require("fs");
-const stdinBuffer = fs.readFileSync(0); // STDIN
+const stdinBuffer = fs.readFileSync(0);
 
 const debugMode = process.argv.includes("-d");
 
