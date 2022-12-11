@@ -122,3 +122,5 @@ https://adventofcode.com/2022
   + Moving a multi-knot rope around a 2D plane.
 - [Day 10](./2022/day_10)  Python
   + Drawing an image on a screen using a pixel sprite that moves according to elementary CPU instructions.
+- [Day 11](./2022/day_11)  KotlinScript
+  + Monkey business: throwing big integer items between monkeys. Modulo trickery, Chinese remainder theorem.
