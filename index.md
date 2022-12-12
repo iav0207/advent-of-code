@@ -124,3 +124,5 @@ https://adventofcode.com/2022
   + Drawing an image on a screen using a pixel sprite that moves according to elementary CPU instructions.
 - [Day 11](./2022/day_11)  KotlinScript
   + Monkey business: throwing big integer items between monkeys. Modulo trickery, Chinese remainder theorem.
+- [Day 12](./2022/day_12)  Python
+  + Dijkstra. Finding shortest paths to climb to the best spot on the map.
