@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import sys
+from typing import Optional
 from dataclasses import dataclass
 from queue import PriorityQueue
 
@@ -26,7 +27,6 @@ def find(v):
             if field[x][y] == v:
                 yield x, y
 
-
 start, dest = next(find('S')), next(find('E'))
 
 
@@ -51,16 +51,14 @@ class Path:
                 yield x, y
 
     def accessible_neighbours(self):
-        self_val = field[self.head[0]][self.head[1]]
-        for nx, ny in self.neighbours():
-            nval = field[nx][ny]
-            if self_val == 'S':
-                self_val = 'a'
-            if nval == 'E':
-                nval = 'z'
-            if ord(nval) - ord(self_val) < 2:
-                debug(f'{self_val} -> {nval} diff = {ord(nval) - ord(self_val)}')
-                yield nx, ny
+        for neighbour in self.neighbours():
+            if self.elevation_of(neighbour) - self.elevation_of(self.head) < 2:
+                yield neighbour
+
+    @staticmethod
+    def elevation_of(point):
+        value = field[point[0]][point[1]]
+        return ord({'S': 'a', 'E': 'z'}.get(value, value))
 
     def create_child(self, nxt):
         return Path(nxt, self, self.length + 1)
