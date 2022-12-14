@@ -126,3 +126,5 @@ https://adventofcode.com/2022
   + Monkey business: throwing big integer items between monkeys. Modulo trickery, Chinese remainder theorem.
 - [Day 12](./2022/day_12)  Python
   + Dijkstra. Finding shortest paths to climb to the best spot on the map.
+- [Day 13](./2022/day_13)  JavaScript Python
+  + Comparing nested packets of integers, sorting the packets. Recursion, comparators.
