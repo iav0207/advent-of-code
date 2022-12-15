@@ -2,7 +2,9 @@ Spec https://adventofcode.com/2022/day/13
 
 Desc Comparing nested packets of integers, sorting the packets. Recursion, comparators.
 
-Tried to solve in JavaScript, got stuck idk where (the example passes, answer given on the input is wrong). Solved from scratch in Python, worked like a charm. The problem is not complicated. I think I got sucked in some `undefined` problems in JavaScript, or maybe some code branch did not return a value when it was supposed to 🤷.
+Tried to solve in JavaScript, got stuck (the example passed, but the answer given on the input is wrong). Solved from scratch in Python, worked like a charm. Then I debugged the two solutions by analyzing discrepancies in their results and finally fixed the initial JavaScript solution.
+
+Key takeaway: when dealing with comparisons, use comparator function abstraction from the very beginning to implement ternary logic. Using `true`, `false` and `undefined` will get you doubting your design all the time, as `undefined` is not as reliable as an intentional value of `0`. Additionally, using comparator abstraction made the part 2 solution trivial.
 
 Execution
 
