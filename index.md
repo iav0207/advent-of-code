@@ -128,3 +128,5 @@ https://adventofcode.com/2022
   + Dijkstra. Finding shortest paths to climb to the best spot on the map.
 - [Day 13](./2022/day_13)  JavaScript Python
   + Comparing nested packets of integers, sorting the packets. Recursion, comparators.
+- [Day 14](./2022/day_14)  Python
+  + Simulating pouring sand in a space with horizontal and vertical walls.
