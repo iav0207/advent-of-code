@@ -132,3 +132,5 @@ https://adventofcode.com/2022
   + Simulating pouring sand in a space with horizontal and vertical walls.
 - [Day 15](./2022/day_15)  Python
   + Sensors and beacons. Identifying the distress beacon position by excluding regions covered by given sensors on a large 2D field.
+- [Day 16](./2022/day_16)  Python
+  + Moving through the tunnels and opening valves to release as much pressure as possible within 30 minutes before volcano erupts.

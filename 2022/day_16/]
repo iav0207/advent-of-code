@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+
+import sys
+import re
+from dataclasses import dataclass
+from typing import Optional
+
+debug_mode = '-d' in sys.argv
+
+
+def debug(obj):
+    if debug_mode:
+        print(str(obj))
+
+
+lines = sys.stdin.read().splitlines()
+inputs = [re.findall(r'[A-Z]{2}|\d+', line) for line in lines]
+flow_rates = {it[0]: int(it[1]) for it in inputs}
+tunnels = {it[0]: it[2:] for it in inputs}
+
+debug(flow_rates)
+debug(tunnels)
+
+actions = [
+    'move to valve DD',
+    'open valve DD',
+    'move to valve CC',
+    'move to valve BB',
+    'open valve BB',
+    'move to valve AA',
+    'move to valve II',
+    'move to valve JJ',
+    'open valve JJ',
+    'move to valve II',
+    'move to valve AA',
+    'move to valve DD',
+    'move to valve EE',
+    'move to valve FF',
+    'move to valve GG',
+    'move to valve HH',
+    'open valve HH',
+    'move to valve GG',
+    'move to valve FF',
+    'move to valve EE',
+    'open valve EE',
+    'move to valve DD',
+    'move to valve CC',
+    'open valve CC',
+]
+
+@dataclass
+class Path:
+    head: tuple
+    parent: Optional[object] = None
+    valves_open: set = set()
+    released: int = 0
+
+    def create_child(self, head):
+        return Path(head, self, self.valves_open.copy(), self.released)
+
