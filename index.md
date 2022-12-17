@@ -130,3 +130,5 @@ https://adventofcode.com/2022
   + Comparing nested packets of integers, sorting the packets. Recursion, comparators.
 - [Day 14](./2022/day_14)  Python
   + Simulating pouring sand in a space with horizontal and vertical walls.
+- [Day 15](./2022/day_15)  Python
+  + Sensors and beacons. Identifying the distress beacon position by excluding regions covered by given sensors on a large 2D field.
