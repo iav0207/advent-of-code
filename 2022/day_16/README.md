@@ -4,6 +4,8 @@ Desc Moving through the tunnels and opening valves to release as much pressure a
 
 Solved with brute force, trying all possible options. Used greedy approach, limiting the number of candidates on every generation to an arbitrary number. The solution is quite slow, specifically for part 2, I guess there must be a more efficient approach.
 
+Tried to apply DP approach [here](advent_16_dp_approach.py), but it runs forever as well. There is a possibility to optimize it by making it greedier, but it will essentially turn it into what's done in the [brute force solution](advent_16.py).
+
 Execution
 
 ```bash
