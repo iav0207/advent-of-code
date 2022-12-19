@@ -134,3 +134,5 @@ https://adventofcode.com/2022
   + Sensors and beacons. Identifying the distress beacon position by excluding regions covered by given sensors on a large 2D field.
 - [Day 16](./2022/day_16)  Python
   + Moving through the tunnels and opening valves to release as much pressure as possible within 30 minutes before volcano erupts.
+- [Day 17](./2022/day_17)  Python
+  + Simulating a simple tetris to calculate the height of the structure after a gazillion of shapes fall. Utilizing cycles in the simulation. Nice kata to practice repeatedly.
