@@ -136,3 +136,5 @@ https://adventofcode.com/2022
   + Moving through the tunnels and opening valves to release as much pressure as possible within 30 minutes before volcano erupts.
 - [Day 17](./2022/day_17)  Python
   + Simulating a simple tetris to calculate the height of the structure after a gazillion of shapes fall. Utilizing cycles in the simulation. Nice kata to practice repeatedly.
+- [Day 18](./2022/day_18)  Python
+  + Calculating exterior area of a droplet consisting of little cubes.

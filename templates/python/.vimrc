@@ -3,6 +3,9 @@ map <F6> <F5>:!./advent_{{{DAY}}}.py -d < example.txt<CR>
 map <F7> <F5>:!./advent_{{{DAY}}}.py < input.txt<CR>
 map <F8> <F5>:!./advent_{{{DAY}}}.py -d < input.txt<CR>
 
+set ts=4
+set expandtab
+
 e advent_{{{DAY}}}.py
 vne input.txt
 
