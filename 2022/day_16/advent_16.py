@@ -31,7 +31,7 @@ debug(tunnels)
 class Path:
     head: tuple
     valves_open: set
-    parent: Optional[object] = None
+    parent: Optional[object] = None  # keeping a ref to the parent is here only for debugging, not essential for the algorithm
     released: int = 0
     minutes_elapsed: int = 0
     elephant: Optional[tuple] = None
@@ -87,7 +87,7 @@ class Path:
 pq = PriorityQueue()
 pq.put((0, Path('AA', set(), elephant='AA' if part2 else None)))
 
-# generousity == reverse greediness of the algorithm
+# generosity == inverse greediness of the algorithm
 # how big the taken sample on every generation can be
 # the less the faster, but we can miss out on some winning paths
 generosity = 100000 if part2 else 10000
