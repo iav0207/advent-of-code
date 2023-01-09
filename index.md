@@ -138,7 +138,8 @@ https://adventofcode.com/2022
   + Simulating a simple tetris to calculate the height of the structure after a gazillion of shapes fall. Utilizing cycles in the simulation. Nice kata to practice repeatedly.
 - [Day 18](./2022/day_18)  Python
   + Calculating exterior area of a droplet consisting of little cubes.
-  + Day 19 Not done
+- [Day 19](./2022/day_19)  Python
+  + Building resource-mining robots optimally to maximize the number of geodes within a certain time. Brute-force + limiting the space of possible states.
   + Day 20 Not done
 - [Day 21](./2022/day_21)  Python
   + Recursive evaluation of numbers that _monkeys yell_. Then fitting a value for a human to yell to pass the equality test of the _root monkey_.
