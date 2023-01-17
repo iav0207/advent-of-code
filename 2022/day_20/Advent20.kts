@@ -4,48 +4,61 @@ var debug = false
 fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 
 debug = "-d" in args
-val initArrangement: List<Long> = generateSequence { readLine()?.trimEnd()?.toLong() }.toList()
-val len = initArrangement.size
 
-debug { initArrangement }
+data class Payload(val id: Int, val value: Long)
 
-val mix = initArrangement.toMutableList()
-
-fun MutableList<Long>.swap(i: Int, j: Int) {
-    val ai = get(i)
-    val aj = get(j)
-    set(i, aj)
-    set(j, ai)
-}
-
-fun cycle(n: Int): Int {
-    var c = n
-    while (c < 0) c += len
-    return c % len
-}
-
-fun MutableList<Long>.move(num: Long) {
-    debug { "Move $num" }
-    val from = indexOf(num) // FIXME values are not unique :(
-    val direc = if (num >= 0L) 1 else -1
-    var i = from
-    var toGo = Math.abs(num.toInt())
-    while (toGo > 0) {
-        val j = cycle(i + direc)
-        swap(cycle(i), j)
-        i += direc
-        toGo--
+class Node(
+    var payload: Payload,
+    var prev: Node? = null,
+    var next: Node? = null,
+) {
+    fun prev(): Node = prev!!
+    fun next(): Node = next!!
+    fun swapWith(other: Node): Node {
+        val otherPayload = other.payload
+        other.payload = payload
+        payload = otherPayload
+        return other
     }
+    fun asSequence(): Sequence<Node> = generateSequence(this) { it.next() }
 }
 
-initArrangement.asSequence().forEach { mix.move(it); debug { mix } }
+val input: List<Long> = generateSequence { readLine()?.trimEnd()?.toLong() }.toList()
+val len = input.size
 
-val indexOfZero = mix.indexOf(0)
-val part1answer = listOf(1000, 2000, 3000)
-    .map { mix[(indexOfZero + it) % len] }
-    .also { debug { it } }
-    .sum()
-println("Part 1: $part1answer")
-// -2274 is not the right answer
-// that's cuz input values are not unique!!
+fun buildRing(): Collection<Node> {
+    val ring = input.withIndex()
+        .map { (i, it) -> Payload(i, it) }
+        .map { Node(it) }
+    ring.zipWithNext().forEach { (prev, next) ->
+        prev.next = next
+        next.prev = prev
+    }
+    ring.first().prev = ring.last()
+    ring.last().next = ring.first()
+    return ring
+}
+
+val mix = buildRing()
+
+debug { mix.first().asSequence().take(len).map { it.payload.value }.toList() }
+
+for (id in 0 until len) {
+    val start = mix.find { node -> node.payload.id == id }!!
+    val num = start.payload.value
+    fun step(node: Node) = if (num >= 0L) node.swapWith(node.next()) else node.swapWith(node.prev())
+    var toGo = Math.abs(num)
+    var node = start
+    while (toGo-- > 0) node = step(node)
+    debug { mix.first().asSequence().take(len).map { it.payload.value }.toList() }
+}
+
+val zeroNode = mix.find { it.payload.value == 0L }!!
+var p1 = 0L
+var cur = zeroNode
+for (i in 1..3000) {
+    cur = cur.next()
+    if (i % 1000 == 0) p1 += cur.payload.value
+}
+println("Part 1: $p1")
 
