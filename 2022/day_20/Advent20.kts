@@ -39,12 +39,15 @@ fun MutableList<Item>.move(id: Int) {
     val from: Int = withIndex().find { (_, item) -> item.id == id }!!.index
     val value = get(from).value
     check(value == initialArrangement[id].value)
-    val to = cyclic(from + value.toInt(), cycLen = len)
+    var preto = from + cyclic(value.toInt(), cycLen = len - 1)
+    if (value < 0) preto++
+    val to = cyclic(preto, cycLen = len)
     debug { "Moving $value from $from to $to" }
     if (to == from) return
     val direc = if (value >= 0) 1 else -1
     var (prev, curr) = Pair(from, cyclic(from + direc, cycLen = len))
     debug { "direc $direc" }
+    var distance = 1
     while (true) {
         debug { "swap $prev <> $curr" }
         check(prev != curr)
@@ -52,7 +55,9 @@ fun MutableList<Item>.move(id: Int) {
         if (curr == to) break
         prev = curr
         curr = cyclic(curr + direc, cycLen = len)
+        distance++
     }
+    debug { "distance $distance" }
 }
 
 val expected = listOf(
@@ -66,13 +71,17 @@ val expected = listOf(
     listOf(1, 2, -3, 4, 0, 3, -2),
 ).map { sublist -> sublist.map { it -> it.toLong() } }
 
+var test = false
+
 debug { "Initial:\t${initialArrangement.map { it.value }}" }
 for (id in initialArrangement.indices) {
     println(id)
-    // val actual: List<Long> = mix.map { it.value }
-    // val shExpected = expected[id].toMutableList()
-    // while (shExpected[0] != actual[0]) shExpected.add(shExpected.removeAt(0))
-    // check(shExpected == actual) { "\nid: $id\nExpected:\t${expected[id]}\nActual:\t\t$actual" }
+    if (test) {
+        val actual: List<Long> = mix.map { it.value % 6 }
+        val shExpected = expected[id].toMutableList()
+        while (shExpected[0] != actual[0]) shExpected.add(shExpected.removeAt(0))
+        check(shExpected == actual) { "\nid: $id\nExpected:\t${expected[id]}\nActual:\t\t$actual" }
+    }
     mix.move(id)
     debug { "Moved ${initialArrangement[id].value}:\t${mix.map { it.value }}" }
 }
