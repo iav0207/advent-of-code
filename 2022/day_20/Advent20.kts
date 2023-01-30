@@ -15,16 +15,13 @@ val initialArrangement: List<Item> = generateSequence { readLine()?.trimEnd()?.t
     .toList()
 
 val len = initialArrangement.size
-// TODO better names for cycle and cycLen
-val cycle = len - 1 // that's because we carry the item over len-1 remaining positions
 
 val mix = initialArrangement.toMutableList()
 
-fun cyclic(n: Int, cycLen: Int = cycle): Int {
-    var c = n
-    while (c < 0) c += cycLen
-    c %= cycLen
-    check(c >= 0)
+fun Int.cyclic(cycleLength: Int): Int {
+    var c = this
+    while (c < 0) c += cycleLength
+    c %= cycleLength
     return c
 }
 
@@ -39,49 +36,26 @@ fun MutableList<Item>.move(id: Int) {
     val from: Int = withIndex().find { (_, item) -> item.id == id }!!.index
     val value = get(from).value
     check(value == initialArrangement[id].value)
-    var preto = from + cyclic(value.toInt(), cycLen = len - 1)
-    if (value < 0) preto++
-    val to = cyclic(preto, cycLen = len)
+    val to = from
+        .plus(value.toInt().cyclic(len - 1)) // -1 for skipping self
+        .plus(if (value < 0) 1 else 0)
+        .cyclic(len)
     debug { "Moving $value from $from to $to" }
     if (to == from) return
     val direc = if (value >= 0) 1 else -1
-    var (prev, curr) = Pair(from, cyclic(from + direc, cycLen = len))
-    debug { "direc $direc" }
-    var distance = 1
+    var prev = from
+    var curr = from.plus(direc).cyclic(len)
     while (true) {
         debug { "swap $prev <> $curr" }
-        check(prev != curr)
         swap(prev, curr)
         if (curr == to) break
         prev = curr
-        curr = cyclic(curr + direc, cycLen = len)
-        distance++
+        curr = curr.plus(direc).cyclic(len)
     }
-    debug { "distance $distance" }
 }
-
-val expected = listOf(
-    listOf(1, 2, -3, 3, -2, 0, 4),
-    listOf(2, 1, -3, 3, -2, 0, 4),
-    listOf(1, -3, 2, 3, -2, 0, 4),
-    listOf(1, 2, 3, -2, -3, 0, 4),
-    listOf(1, 2, -2, -3, 0, 3, 4),
-    listOf(1, 2, -3, 0, 3, 4, -2),
-    listOf(1, 2, -3, 0, 3, 4, -2),
-    listOf(1, 2, -3, 4, 0, 3, -2),
-).map { sublist -> sublist.map { it -> it.toLong() } }
-
-var test = false
 
 debug { "Initial:\t${initialArrangement.map { it.value }}" }
 for (id in initialArrangement.indices) {
-    println(id)
-    if (test) {
-        val actual: List<Long> = mix.map { it.value % 6 }
-        val shExpected = expected[id].toMutableList()
-        while (shExpected[0] != actual[0]) shExpected.add(shExpected.removeAt(0))
-        check(shExpected == actual) { "\nid: $id\nExpected:\t${expected[id]}\nActual:\t\t$actual" }
-    }
     mix.move(id)
     debug { "Moved ${initialArrangement[id].value}:\t${mix.map { it.value }}" }
 }
