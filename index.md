@@ -140,6 +140,7 @@ https://adventofcode.com/2022
   + Calculating exterior area of a droplet consisting of little cubes.
 - [Day 19](./2022/day_19)  Python
   + Building resource-mining robots optimally to maximize the number of geodes within a certain time. Brute-force + limiting the space of possible states.
-  + Day 20 Not done
+- [Day 20](./2022/day_20)  KotlinScript
+  + Decoding a list of numbers by moving every number _its value_ positions along the list. Pretty difficult ring indexing logic. But the biggest trouble was the fact that list items weren't unique 🙈. Gotta always check the inputs!
 - [Day 21](./2022/day_21)  Python
   + Recursive evaluation of numbers that _monkeys yell_. Then fitting a value for a human to yell to pass the equality test of the _root monkey_.
