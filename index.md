@@ -1,9 +1,19 @@
 ./toc.sh
 # Index
 
+- [2019](#2019)
 - [2020](#2020)
 - [2021](#2021)
 - [2022](#2022)
+
+## 2019
+
+https://adventofcode.com/2019
+
+[Jump to top](#index)
+
+- [Day 01](./2019/day_01)  Go
+  + Calculating net and gross fuel amount needed to carry a multimodule spacecraft.
 
 ## 2020
 
@@ -144,3 +154,5 @@ https://adventofcode.com/2022
   + Decoding a list of numbers by moving every number _its value_ positions along the list. Pretty difficult ring indexing logic. But the biggest trouble was the fact that list items weren't unique 🙈. Gotta always check the inputs!
 - [Day 21](./2022/day_21)  Python
   + Recursive evaluation of numbers that _monkeys yell_. Then fitting a value for a human to yell to pass the equality test of the _root monkey_.
+- [Day 22](./2022/day_22)  Python
+  + Walking around a force field given a set of instructions (turn + move), hitting walls and wrapping around the non-rectangular field.
