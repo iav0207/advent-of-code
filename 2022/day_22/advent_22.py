@@ -118,3 +118,11 @@ total_surface = sum(1 if at(row, col) != ' ' else 0 for row, col in product(rang
 edge_length = int(math.sqrt(total_surface / 6))
 debug(f'edge length is {edge_length}')
 
+# find the target face
+
+
+# track the path (edge crossings to reach the target face)
+
+# find the coord on that face transforming the flat-wrap coord
+# depending on the path tracked above
+
