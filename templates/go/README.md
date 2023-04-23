@@ -6,7 +6,6 @@ Execution
 
 ```bash
 go run advent_{{{DAY}}}.go < input.txt
-./advent_{{{DAY}}}.py < input.txt
 ```
 
 Output

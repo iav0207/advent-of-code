@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -24,6 +25,12 @@ func readInputLines() []string {
 	return lines
 }
 
+func debug(a any) {
+	if debugMode {
+		fmt.Printf("%v\n", a)
+	}
+}
+
 func isDebugMode() bool {
 	for _, arg := range os.Args[1:] {
 		if arg == "-d" {
@@ -31,4 +38,10 @@ func isDebugMode() bool {
 		}
 	}
 	return false
+}
+
+func failIf(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

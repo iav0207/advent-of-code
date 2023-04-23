@@ -14,6 +14,8 @@ https://adventofcode.com/2019
 
 - [Day 01](./2019/day_01)  Go
   + Calculating net and gross fuel amount needed to carry a multimodule spacecraft.
+- [Day 02](./2019/day_02)  Go
+  + Intcode execution and modification
 
 ## 2020
 
