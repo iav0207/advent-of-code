@@ -16,33 +16,47 @@ func main() {
 	_, err := fmt.Scanf("%s\n%s\n", &line1, &line2)
 	failIf(err)
 	debug(fmt.Sprintf("line1 = %s\nline2 = %s\n", line1, line2))
-	var wire1 map[point]member = follow(line1)
-	var wire2 map[point]member = follow(line2)
+	var wire1 map[point]int = follow(line1)
+	var wire2 map[point]int = follow(line2)
 	debug(len(wire1))
 	debug(len(wire2))
 	var winnerDist int
+	var winnerSigT int
 	center := point{0, 0}
 	for point := range wire2 {
 		debug(fmt.Sprintf("checking %v", point))
-		if _, intersects := wire1[point]; intersects {
+		if other, intersects := wire1[point]; intersects {
 			debug("intersects")
 			dist := manhattan(center, point)
 			if winnerDist == 0 || winnerDist > dist {
 				winnerDist = dist
 			}
+			sigT, _ := wire2[point]
+			sigT += other
+			if winnerSigT == 0 || winnerSigT > sigT {
+				winnerSigT = sigT
+			}
 		}
 	}
 	fmt.Printf("Part 1: %d\n", winnerDist)
+	fmt.Printf("Part 2: %d\n", winnerSigT)
 }
 
-func follow(wire string) map[point]member {
-	points := make(map[point]member)
+// follow returns the wire as an association of point to the number
+// of steps needed to reach it from the center. Center is at zero
+// number of steps. Points not occupied by the wire are absent in the map.
+func follow(wire string) map[point]int {
+	points := make(map[point]int)
 	curr := point{0, 0}
+	var step int
 	for _, section := range strings.Split(wire, ",") {
 		debug("section")
 		for relLine := parse(section); relLine.length > 0; relLine.length-- {
 			curr = curr.shiftByOne(relLine.dir)
-			points[curr] = member{}
+			step++
+			if _, seen := points[curr]; !seen {
+				points[curr] = step
+			}
 		}
 	}
 	return points
