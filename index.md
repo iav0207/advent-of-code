@@ -18,6 +18,11 @@ https://adventofcode.com/2019
   + Intcode execution and modification
 - [Day 03](./2019/day_03)  Go
   + Finding closest intersection of two wires on a 2D plane
+- [Day 04](./2019/day_04)  Go
+  + Finding numeric password candidates that meet certain simple criterias on digits.
+  + Day 05 Not done
+- [Day 06](./2019/day_06)  Kotlin
+  + Finding the way to Santa through the galaxy using orbital transfers (finding a path in a tree).
 
 ## 2020
 
