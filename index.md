@@ -20,7 +20,8 @@ https://adventofcode.com/2019
   + Finding closest intersection of two wires on a 2D plane
 - [Day 04](./2019/day_04)  Go
   + Finding numeric password candidates that meet certain simple criterias on digits.
-  + Day 05 Not done
+- [Day 05](./2019/day_05)  Go
+  + Intcode computer upgrade: added support for more operations and an additional immediate parameter mode.
 - [Day 06](./2019/day_06)  Kotlin
   + Finding the way to Santa through the galaxy using orbital transfers (finding a path in a tree).
 
