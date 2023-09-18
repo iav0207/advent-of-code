@@ -31,7 +31,7 @@ RUN:
 	for {
 		cmd := e.newCommand()
 		params := cmd.params()
-		args := cmd.args()
+		args := e.args(cmd)
 
 		switch cmd.op() {
 
@@ -88,16 +88,20 @@ RUN:
 	return output
 }
 
+// newCommand scans the next command with the length depending on the count
+// of the operation parameters.
 func (e *Execution) newCommand() command {
 	scanLen := Instruction{e.at(int64(e.cursor))}.Operation().ParCount + 1
-	cmd := e.scan(scanLen)
-	return command{
-		code: cmd,
-		mem:  e.p.Code,
-	}
+	return command{code: e.scan(scanLen)}
 }
 
-func (c command) args() []*word {
+// args returns an array of pointers to the arguments. The pointers refer
+// either to literal values, or to memory elements, depending on the modes
+// in which parameters come in the command. This way, the execution
+// further on is agnostic of the parameter modes, as it can always work
+// on dereferenced argument values, for both reads and writes.
+func (e *Execution) args(c command) []*word {
+	memory := e.p.Code
 	p, m := c.params(), c.modes()
 	args := make([]*word, len(p))
 	argsDebug := make([]word, len(p))
@@ -106,7 +110,7 @@ func (c command) args() []*word {
 			val := p[i]
 			args[i] = &val // pointer to a value
 		} else {
-			args[i] = &c.mem[p[i]] // pointer to the memory element (writable)
+			args[i] = &memory[p[i]] // pointer to the memory element (writable)
 		}
 		argsDebug[i] = *args[i]
 	}
@@ -134,11 +138,6 @@ func (c command) instruction() Instruction {
 
 type command struct {
 	code []word
-	mem  []word
-}
-
-func (e *Execution) scanOne() word {
-	return e.scan(1)[0]
 }
 
 func (e *Execution) scan(count int) []word {
