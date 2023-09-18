@@ -15,7 +15,8 @@ func main() {
 	debugMode = isDebugMode()
 	code := readInput()
 
-	NewExecution(code).Run()
+	fmt.Printf("Part 1: %d\n", NewExecution(code).Run(1))
+	fmt.Printf("Part 2: %d\n", NewExecution(code).Run(5))
 }
 
 func NewExecution(code []word) *Execution {
@@ -24,7 +25,8 @@ func NewExecution(code []word) *Execution {
 	return &Execution{p: Program{codeCopy}}
 }
 
-func (e Execution) Run() {
+func (e Execution) Run(input word) []word {
+	var output []word
 RUN:
 	for {
 		cmd := e.newCommand()
@@ -32,26 +34,58 @@ RUN:
 		args := cmd.args()
 
 		switch cmd.op() {
+
 		case Halt:
-			fmt.Println("Halt.")
+			debug("Halt.")
 			break RUN
+
 		case Add:
 			debugf("added %d+%d=%d, put in %d (overwriting value %d)\n",
 				*args[0], *args[1], *args[0]+*args[1], params[2], e.at(params[2]))
 			*args[2] = *args[0] + *args[1]
+
 		case Multiply:
 			debugf("multiplied %d*%d=%d, put in %d (overwriting value %d)\n",
 				*args[0], *args[1], *args[0]**args[1], params[2], e.at(params[2]))
 			*args[2] = *args[0] * *args[1]
+
+		case JumpIfTrue:
+			if *args[0] != 0 {
+				e.cursor = int(*args[1])
+			}
+
+		case JumpIfFalse:
+			if *args[0] == 0 {
+				e.cursor = int(*args[1])
+			}
+
+		case LessThan:
+			*args[2] = 0
+			if *args[0] < *args[1] {
+				*args[2] = 1
+			}
+
+		case Equals:
+			*args[2] = 0
+			if *args[0] == *args[1] {
+				*args[2] = 1
+			}
+
 		case Input:
-			*args[0] = 1
-			debugf("put 1 in %d\n", params[0])
+			*args[0] = input
+			debugf("put %d in %d\n", input, params[0])
+
 		case Output:
-			fmt.Printf("Output: %d\n\n", *args[0])
+			if *args[0] != 0 {
+				debugf("Output: %d\n", *args[0])
+			}
+			output = append(output, *args[0])
+
 		default:
 			log.Fatalf("Can't run opcode %d\n", cmd.op())
 		}
 	}
+	return output
 }
 
 func (e *Execution) newCommand() command {
@@ -125,10 +159,6 @@ type Program struct {
 
 type word = int64
 
-type Data struct {
-	Content []int
-}
-
 type Execution struct {
 	p      Program
 	cursor int
@@ -164,17 +194,25 @@ const (
 )
 
 var (
-	Add      Operation = Operation{1, 3}
-	Multiply Operation = Operation{2, 3}
-	Input    Operation = Operation{3, 1}
-	Output   Operation = Operation{4, 1}
-	Halt     Operation = Operation{99, 0}
+	Add         Operation = Operation{1, 3}
+	Multiply    Operation = Operation{2, 3}
+	Input       Operation = Operation{3, 1}
+	Output      Operation = Operation{4, 1}
+	JumpIfTrue  Operation = Operation{5, 2}
+	JumpIfFalse Operation = Operation{6, 2}
+	LessThan    Operation = Operation{7, 3}
+	Equals      Operation = Operation{8, 3}
+	Halt        Operation = Operation{99, 0}
 
 	ops map[word]Operation = map[word]Operation{
 		1:  Add,
 		2:  Multiply,
 		3:  Input,
 		4:  Output,
+		5:  JumpIfTrue,
+		6:  JumpIfFalse,
+		7:  LessThan,
+		8:  Equals,
 		99: Halt,
 	}
 )
