@@ -29,18 +29,48 @@ func main() {
 		if countDistinct(phases) < ampCount {
 			continue
 		}
-		signal := word(0)
 		debugf("c=%d\tp=%v\n", c, phases)
+		amps := make([]*Amp, ampCount)
 		for a := 0; a < ampCount; a++ {
-			input := Scanner{sequence: []word{phases[a], signal}}
-			signal = NewExecution(code).Run(input)[0]
+			amps[a] = NewAmp(phases[a], NewExecution(code))
 		}
-		if signal > bestOutput {
-			bestOutput = signal
+		for a := 0; a < ampCount; a++ {
+			if a < len(amps)-1 {
+				amps[a].output = amps[a+1].input
+			}
+			amps[a].Launch()
+			amps[a].input <- amps[a].p
+		}
+
+		amps[0].input <- word(0)
+		output := <-amps[len(amps)-1].output
+
+		if output > bestOutput {
+			bestOutput = output
 			bestCombination = c
 		}
 	}
 	fmt.Printf("Part 1: highest signal is %d, sequence %v\n", bestOutput, phaseCombination(bestCombination))
+}
+
+type Amp struct {
+	p      Phase
+	e      *Execution
+	input  chan word
+	output chan word
+}
+
+func NewAmp(p Phase, e *Execution) *Amp {
+	return &Amp{p, e, make(chan word), make(chan word)}
+}
+
+func (a *Amp) Launch() {
+	go func() {
+		defer close(a.output)
+		for signal := range a.e.Run(a.input) {
+			a.output <- signal
+		}
+	}()
 }
 
 type Phase = word
@@ -67,66 +97,69 @@ func NewExecution(code []word) *Execution {
 	return &Execution{p: Program{codeCopy}, scanner: &Scanner{sequence: codeCopy}}
 }
 
-func (e Execution) Run(input Scanner) []word {
-	var output []word
-RUN:
-	for {
-		cmd := e.newCommand()
-		params := cmd.params()
-		args := e.args(cmd)
+func (e Execution) Run(input <-chan word) <-chan word {
+	output := make(chan word)
+	go func() {
+		defer close(output)
+	RUN:
+		for {
+			cmd := e.newCommand()
+			params := cmd.params()
+			args := e.args(cmd)
 
-		switch cmd.op() {
+			switch cmd.op() {
 
-		case Halt:
-			debug("Halt.")
-			break RUN
+			case Halt:
+				debug("Halt.")
+				break RUN
 
-		case Add:
-			debugf("added %d+%d=%d, put in %d (overwriting value %d)\n",
-				*args[0], *args[1], *args[0]+*args[1], params[2], e.at(params[2]))
-			*args[2] = *args[0] + *args[1]
+			case Add:
+				debugf("added %d+%d=%d, put in %d (overwriting value %d)\n",
+					*args[0], *args[1], *args[0]+*args[1], params[2], e.at(params[2]))
+				*args[2] = *args[0] + *args[1]
 
-		case Multiply:
-			debugf("multiplied %d*%d=%d, put in %d (overwriting value %d)\n",
-				*args[0], *args[1], *args[0]**args[1], params[2], e.at(params[2]))
-			*args[2] = *args[0] * *args[1]
+			case Multiply:
+				debugf("multiplied %d*%d=%d, put in %d (overwriting value %d)\n",
+					*args[0], *args[1], *args[0]**args[1], params[2], e.at(params[2]))
+				*args[2] = *args[0] * *args[1]
 
-		case JumpIfTrue:
-			if *args[0] != 0 {
-				e.scanner.SetCursor(int(*args[1]))
+			case JumpIfTrue:
+				if *args[0] != 0 {
+					e.scanner.SetCursor(int(*args[1]))
+				}
+
+			case JumpIfFalse:
+				if *args[0] == 0 {
+					e.scanner.SetCursor(int(*args[1]))
+				}
+
+			case LessThan:
+				*args[2] = 0
+				if *args[0] < *args[1] {
+					*args[2] = 1
+				}
+
+			case Equals:
+				*args[2] = 0
+				if *args[0] == *args[1] {
+					*args[2] = 1
+				}
+
+			case Input:
+				*args[0] = <-input
+				debugf("put %d in %d\n", *args[0], params[0])
+
+			case Output:
+				if *args[0] != 0 {
+					debugf("Output: %d\n", *args[0])
+				}
+				output <- *args[0]
+
+			default:
+				log.Fatalf("Can't run opcode %d\n", cmd.op())
 			}
-
-		case JumpIfFalse:
-			if *args[0] == 0 {
-				e.scanner.SetCursor(int(*args[1]))
-			}
-
-		case LessThan:
-			*args[2] = 0
-			if *args[0] < *args[1] {
-				*args[2] = 1
-			}
-
-		case Equals:
-			*args[2] = 0
-			if *args[0] == *args[1] {
-				*args[2] = 1
-			}
-
-		case Input:
-			*args[0] = input.Scan(1)[0]
-			debugf("put %d in %d\n", *args[0], params[0])
-
-		case Output:
-			if *args[0] != 0 {
-				debugf("Output: %d\n", *args[0])
-			}
-			output = append(output, *args[0])
-
-		default:
-			log.Fatalf("Can't run opcode %d\n", cmd.op())
 		}
-	}
+	}()
 	return output
 }
 
