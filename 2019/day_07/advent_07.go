@@ -25,7 +25,7 @@ func main() {
 	for part := 1; part < 3; part++ {
 		s := Solution{part, code}
 		bestOutput, bestConfig := s.FindBestConfiguration()
-		fmt.Printf("Part %d: highest signal is %d, sequence %v\n", part, bestOutput, s.phaseCombination(bestConfig))
+		fmt.Printf("Part %d: highest signal is %d, sequence %v\n", part, bestOutput, s.PhaseCombination(bestConfig))
 	}
 }
 
@@ -37,10 +37,10 @@ type Solution struct {
 // FindBestConfiguration assembles the circuit for every possible phase config
 // and evaluates its output. Returns the maximum output and the corresponding
 // configuration ID. The phase config can be reconstructed from the ID using
-// Solution.phaseCombination(int) function.
+// Solution.PhaseCombination(int) function.
 func (s Solution) FindBestConfiguration() (bestOutput word, bestConfig int) {
 	for c := 0; c < combCount; c++ {
-		phases := s.phaseCombination(c)
+		phases := s.PhaseCombination(c)
 		if countDistinct(phases) < ampCount {
 			continue
 		}
@@ -60,7 +60,7 @@ func (s Solution) FindBestConfiguration() (bestOutput word, bestConfig int) {
 	return
 }
 
-func (s Solution) phaseCombination(i int) []Phase {
+func (s Solution) PhaseCombination(i int) []Phase {
 	phases := make([]Phase, ampCount)
 	for p := range phases {
 		phases[p] = Phase((i / int(math.Pow(float64(phaseLimit), float64(p)))) % phaseLimit)
@@ -99,6 +99,13 @@ func (s Solution) evalCircuit(amps []*Amp) (result word) {
 	}
 }
 
+// Amp is an intcode computer running one Execution of a Program.
+// It has one configuration set initially - its phase. Phase always
+// becomes the first input value to the program, given exactly once.
+// After that Amp receives inputs through the input channel. As the
+// Execution runs, output values get pushed to the output channel
+// until the Program terminates, in which case a true value gets
+// pushed onto the done channel of the Amp.
 type Amp struct {
 	p      Phase
 	e      *Execution
@@ -107,12 +114,18 @@ type Amp struct {
 	done   chan bool
 }
 
+// NewAmp instantiates a running Amp with its phase passed down
+// its input channel.
 func NewAmp(p Phase, e *Execution) *Amp {
 	input := make(chan word)
 	output, done := e.Run(input)
 	input <- p
 	return &Amp{p, e, input, output, done}
 }
+
+func (a Amp) Input() chan<- word  { return a.input }
+func (a Amp) Output() <-chan word { return a.output }
+func (a Amp) Done() <-chan bool   { return a.done }
 
 type Phase = word
 
@@ -124,12 +137,20 @@ func countDistinct(phases []Phase) int {
 	return len(set)
 }
 
+// NewExecution instantiates an execution of a copy of the given code.
 func NewExecution(code []word) *Execution {
 	codeCopy := make([]word, len(code))
 	copy(codeCopy, code)
 	return &Execution{p: Program{codeCopy}, scanner: &Scanner{sequence: codeCopy}}
 }
 
+// Run is the main intcode program execution loop running in a goroutine.
+// The input channel (argument) will be read from whenever the execution
+// encounters input instructions. The output channel (first return value)
+// will stream output of the execution, provided there are output instructions
+// in the program. The termination channel (second return value) will
+// stream exactly one true value if and when the program halts, otherwise
+// it will stream no values.
 func (e Execution) Run(input <-chan word) (<-chan word, chan bool) {
 	output := make(chan word)
 	done := make(chan bool)
@@ -230,21 +251,10 @@ func (e *Execution) args(c command) []*word {
 	return args
 }
 
-func (c command) params() []word {
-	return c.code[1:]
-}
-
-func (c command) modes() []word {
-	return c.instruction().ParModes()
-}
-
-func (c command) op() Operation {
-	return c.instruction().Operation()
-}
-
-func (c command) instruction() Instruction {
-	return Instruction{c.code[0]}
-}
+func (c command) params() []word           { return c.code[1:] }
+func (c command) modes() []word            { return c.instruction().ParModes() }
+func (c command) op() Operation            { return c.instruction().Operation() }
+func (c command) instruction() Instruction { return Instruction{c.code[0]} }
 
 type command struct {
 	code []word
@@ -278,9 +288,7 @@ func (s *Scanner) Scan(count int) []word {
 	return buffer
 }
 
-func (s *Scanner) SetCursor(position int) {
-	s.cursor = position
-}
+func (s *Scanner) SetCursor(position int) { s.cursor = position }
 
 type Instruction struct {
 	Code word
