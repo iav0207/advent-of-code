@@ -22,66 +22,99 @@ func main() {
 	debugMode = isDebugMode()
 	code := readInput()
 
-	var bestOutput word
-	var bestCombination int
+	for part := 1; part < 3; part++ {
+		s := Solution{part, code}
+		bestOutput, bestConfig := s.FindBestConfiguration()
+		fmt.Printf("Part %d: highest signal is %d, sequence %v\n", part, bestOutput, s.phaseCombination(bestConfig))
+	}
+}
+
+type Solution struct {
+	part int
+	code []word
+}
+
+// FindBestConfiguration assembles the circuit for every possible phase config
+// and evaluates its output. Returns the maximum output and the corresponding
+// configuration ID. The phase config can be reconstructed from the ID using
+// Solution.phaseCombination(int) function.
+func (s Solution) FindBestConfiguration() (bestOutput word, bestConfig int) {
 	for c := 0; c < combCount; c++ {
-		phases := phaseCombination(c)
+		phases := s.phaseCombination(c)
 		if countDistinct(phases) < ampCount {
 			continue
 		}
 		debugf("c=%d\tp=%v\n", c, phases)
 		amps := make([]*Amp, ampCount)
 		for a := 0; a < ampCount; a++ {
-			amps[a] = NewAmp(phases[a], NewExecution(code))
-		}
-		for a := 0; a < ampCount; a++ {
-			if a < len(amps)-1 {
-				amps[a].output = amps[a+1].input
-			}
-			amps[a].Launch()
-			amps[a].input <- amps[a].p
+			amps[a] = NewAmp(phases[a], NewExecution(s.code))
 		}
 
-		amps[0].input <- word(0)
-		output := <-amps[len(amps)-1].output
+		output := s.evalCircuit(amps)
 
 		if output > bestOutput {
 			bestOutput = output
-			bestCombination = c
+			bestConfig = c
 		}
 	}
-	fmt.Printf("Part 1: highest signal is %d, sequence %v\n", bestOutput, phaseCombination(bestCombination))
+	return
+}
+
+func (s Solution) phaseCombination(i int) []Phase {
+	phases := make([]Phase, ampCount)
+	for p := range phases {
+		phases[p] = Phase((i / int(math.Pow(float64(phaseLimit), float64(p)))) % phaseLimit)
+		if s.part == 2 {
+			phases[p] += 5
+		}
+	}
+	return phases
+}
+
+// Runs signal through the circuit laid out according to the specification
+// of the puzzle part: linear sequence or a feedback loop.
+// Returns the output signal from the last amp in the slice.
+func (s Solution) evalCircuit(amps []*Amp) (result word) {
+	signal := word(0)
+	step := 0
+	for {
+		if s.part == 1 && step >= len(amps) {
+			return
+		}
+		a := step % len(amps)
+		amp := amps[a]
+		go func() { // Async send here prevents deadlocks.
+			amp.input <- signal
+		}()
+		select {
+		case signal = <-amp.output:
+			if a == len(amps)-1 { // The last amp output is the result.
+				result = signal
+			}
+		case <-amp.done:
+			debugf("amp %d terminated.\n", amp.p)
+			return
+		}
+		step++
+	}
 }
 
 type Amp struct {
 	p      Phase
 	e      *Execution
 	input  chan word
-	output chan word
+	output <-chan word
+	done   chan bool
 }
 
 func NewAmp(p Phase, e *Execution) *Amp {
-	return &Amp{p, e, make(chan word), make(chan word)}
-}
-
-func (a *Amp) Launch() {
-	go func() {
-		defer close(a.output)
-		for signal := range a.e.Run(a.input) {
-			a.output <- signal
-		}
-	}()
+	input := make(chan word)
+	output, done := e.Run(input)
+	input <- p
+	return &Amp{p, e, input, output, done}
 }
 
 type Phase = word
-
-func phaseCombination(i int) []Phase {
-	phases := make([]Phase, ampCount)
-	for p := range phases {
-		phases[p] = Phase((i / int(math.Pow(float64(phaseLimit), float64(p)))) % phaseLimit)
-	}
-	return phases
-}
 
 func countDistinct(phases []Phase) int {
 	set := make(map[Phase]bool)
@@ -97,11 +130,12 @@ func NewExecution(code []word) *Execution {
 	return &Execution{p: Program{codeCopy}, scanner: &Scanner{sequence: codeCopy}}
 }
 
-func (e Execution) Run(input <-chan word) <-chan word {
+func (e Execution) Run(input <-chan word) (<-chan word, chan bool) {
 	output := make(chan word)
+	done := make(chan bool)
 	go func() {
 		defer close(output)
-	RUN:
+		defer close(done)
 		for {
 			cmd := e.newCommand()
 			params := cmd.params()
@@ -111,7 +145,8 @@ func (e Execution) Run(input <-chan word) <-chan word {
 
 			case Halt:
 				debug("Halt.")
-				break RUN
+				done <- true
+				return
 
 			case Add:
 				debugf("added %d+%d=%d, put in %d (overwriting value %d)\n",
@@ -160,7 +195,7 @@ func (e Execution) Run(input <-chan word) <-chan word {
 			}
 		}
 	}()
-	return output
+	return output, done
 }
 
 // newCommand scans the next command with the length depending on the count
