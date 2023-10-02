@@ -25,7 +25,7 @@ func main() {
 	for part := 1; part < 3; part++ {
 		s := Solution{part, code}
 		bestOutput, bestConfig := s.FindBestConfiguration()
-		fmt.Printf("Part %d: highest signal is %d, sequence %v\n", part, bestOutput, s.PhaseCombination(bestConfig))
+		fmt.Printf("Part %d: highest signal is %d, sequence %v\n", part, bestOutput, bestConfig)
 	}
 }
 
@@ -36,39 +36,62 @@ type Solution struct {
 
 // FindBestConfiguration assembles the circuit for every possible phase config
 // and evaluates its output. Returns the maximum output and the corresponding
-// configuration ID. The phase config can be reconstructed from the ID using
-// Solution.PhaseCombination(int) function.
-func (s Solution) FindBestConfiguration() (bestOutput word, bestConfig int) {
-	for c := 0; c < combCount; c++ {
-		phases := s.PhaseCombination(c)
-		if countDistinct(phases) < ampCount {
-			continue
-		}
-		debugf("c=%d\tp=%v\n", c, phases)
+// circuit configuration.
+func (s Solution) FindBestConfiguration() (bestOutput word, bestConfig CircuitConfig) {
+	for permutation := range permute(ampCount) {
+		phases := make([]Phase, ampCount)
 		amps := make([]*Amp, ampCount)
 		for a := 0; a < ampCount; a++ {
-			amps[a] = NewAmp(phases[a], NewExecution(s.code))
+			phases[a] = Phase(permutation[a])
+			if s.part > 1 {
+				phases[a] += Phase(5)
+			}
+			amps[a] = NewAmp(Phase(phases[a]), NewExecution(s.code))
 		}
 
 		output := s.evalCircuit(amps)
 
 		if output > bestOutput {
 			bestOutput = output
-			bestConfig = c
+			bestConfig = phases
 		}
 	}
 	return
 }
 
-func (s Solution) PhaseCombination(i int) []Phase {
-	phases := make([]Phase, ampCount)
-	for p := range phases {
-		phases[p] = Phase((i / int(math.Pow(float64(phaseLimit), float64(p)))) % phaseLimit)
-		if s.part == 2 {
-			phases[p] += 5
-		}
+type CircuitConfig []Phase
+
+func permute(n int) <-chan []int {
+	pool := make([]int, n)
+	for i := 0; i < n; i++ {
+		pool[i] = i
 	}
-	return phases
+	ch := make(chan []int)
+	go func() {
+		defer close(ch)
+		for permutation := range permuteRec(pool) {
+			ch <- permutation
+		}
+	}()
+	return ch
+}
+
+func permuteRec(pool []int) <-chan []int {
+	ch := make(chan []int)
+	go func() {
+		defer close(ch)
+		for pi, p := range pool {
+			next := append([]int{}, pool[:pi]...)
+			next = append(next, pool[pi+1:]...)
+			for sub := range permuteRec(next) {
+				ch <- append([]int{p}, sub...)
+			}
+		}
+		if len(pool) == 0 {
+			ch <- nil
+		}
+	}()
+	return ch
 }
 
 // Runs signal through the circuit laid out according to the specification
@@ -128,14 +151,6 @@ func (a Amp) Output() <-chan word { return a.output }
 func (a Amp) Done() <-chan bool   { return a.done }
 
 type Phase = word
-
-func countDistinct(phases []Phase) int {
-	set := make(map[Phase]bool)
-	for _, p := range phases {
-		set[p] = true
-	}
-	return len(set)
-}
 
 // NewExecution instantiates an execution of a copy of the given code.
 func NewExecution(code []word) *Execution {

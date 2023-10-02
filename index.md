@@ -25,7 +25,7 @@ https://adventofcode.com/2019
 - [Day 06](./2019/day_06)  Kotlin
   + Finding the way to Santa through the galaxy using orbital transfers (finding a path in a tree).
 - [Day 07](./2019/day_07)  Go
-  + Finding the best circuit of amplifiers, each amplifier is an intcode computer. Used Golang channels and goroutines.
+  + Finding the best circuit of amplifiers, each amplifier is an intcode computer. Used Golang channels and goroutines. Permutations in Go.
 
 ## 2020
 
