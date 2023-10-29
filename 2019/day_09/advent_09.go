@@ -22,135 +22,36 @@ func main() {
 	debugMode = isDebugMode()
 	code := readInput()
 
-	for part := 1; part < 3; part++ {
-		s := Solution{part, code}
-		bestOutput, bestConfig := s.FindBestConfiguration()
-		fmt.Printf("Part %d: highest signal is %d, sequence %v\n", part, bestOutput, bestConfig)
-	}
+	fmt.Printf("Part 1: %d\n", run(NewExecution(code), 1, runOpts{stopAtNonZero: false}))
 }
 
-type Solution struct {
-	part int
-	code []word
-}
+type runOpts struct{ stopAtNonZero bool }
 
-// FindBestConfiguration assembles the circuit for every possible phase config
-// and evaluates its output. Returns the maximum output and the corresponding
-// circuit configuration.
-func (s Solution) FindBestConfiguration() (bestOutput word, bestConfig CircuitConfig) {
-	for permutation := range permute(ampCount) {
-		phases := make([]Phase, ampCount)
-		amps := make([]*Amp, ampCount)
-		for a := 0; a < ampCount; a++ {
-			phases[a] = Phase(permutation[a])
-			if s.part > 1 {
-				phases[a] += Phase(5)
-			}
-			amps[a] = NewAmp(Phase(phases[a]), NewExecution(s.code))
-		}
-
-		output := s.evalCircuit(amps)
-
-		if output > bestOutput {
-			bestOutput = output
-			bestConfig = phases
-		}
-	}
-	return
-}
-
-type CircuitConfig []Phase
-
-func permute(n int) <-chan []int {
-	pool := make([]int, n)
-	for i := 0; i < n; i++ {
-		pool[i] = i
-	}
-	ch := make(chan []int)
-	go func() {
-		defer close(ch)
-		for permutation := range permuteRec(pool) {
-			ch <- permutation
-		}
+func run(e *Execution, input word, opts runOpts) []word {
+	in := make(chan word)
+	out, done := e.Run(in)
+	var output []word
+	go func() { // Async send here prevents deadlocks.
+		in <- 1
 	}()
-	return ch
-}
-
-func permuteRec(pool []int) <-chan []int {
-	ch := make(chan []int)
-	go func() {
-		defer close(ch)
-		for pi, p := range pool {
-			next := append([]int{}, pool[:pi]...)
-			next = append(next, pool[pi+1:]...)
-			for sub := range permuteRec(next) {
-				ch <- append([]int{p}, sub...)
-			}
-		}
-		if len(pool) == 0 {
-			ch <- nil
-		}
-	}()
-	return ch
-}
-
-// Runs signal through the circuit laid out according to the specification
-// of the puzzle part: linear sequence or a feedback loop.
-// Returns the output signal from the last amp in the slice.
-func (s Solution) evalCircuit(amps []*Amp) (result word) {
-	signal := word(0)
-	step := 0
-	for {
-		if s.part == 1 && step >= len(amps) {
-			return
-		}
-		a := step % len(amps)
-		amp := amps[a]
-		go func() { // Async send here prevents deadlocks.
-			amp.input <- signal
-		}()
+	i := 0
+	terminated := false
+	for !terminated {
 		select {
-		case signal = <-amp.output:
-			if a == len(amps)-1 { // The last amp output is the result.
-				result = signal
+		case value := <-out:
+			i++
+			output = append(output, value)
+			if opts.stopAtNonZero && value != 0 {
+				debugf("non-zero output at position %d\n", i)
+				return output
 			}
-		case <-amp.done:
-			debugf("amp %d terminated.\n", amp.p)
-			return
+		case <-done:
+			debugf("program terminated at position %d\n", i)
+			terminated = true
 		}
-		step++
 	}
+	return output
 }
-
-// Amp is an intcode computer running one Execution of a Program.
-// It has one configuration set initially - its phase. Phase always
-// becomes the first input value to the program, given exactly once.
-// After that Amp receives inputs through the input channel. As the
-// Execution runs, output values get pushed to the output channel
-// until the Program terminates, in which case a true value gets
-// pushed onto the done channel of the Amp.
-type Amp struct {
-	p      Phase
-	e      *Execution
-	input  chan word
-	output <-chan word
-	done   chan bool
-}
-
-// NewAmp instantiates a running Amp with its phase passed down
-// its input channel.
-func NewAmp(p Phase, e *Execution) *Amp {
-	input := make(chan word)
-	output, done := e.Run(input)
-	input <- p
-	return &Amp{p, e, input, output, done}
-}
-
-func (a Amp) Input() chan<- word  { return a.input }
-func (a Amp) Output() <-chan word { return a.output }
-func (a Amp) Done() <-chan bool   { return a.done }
-
-type Phase = word
 
 // NewExecution instantiates an execution of a copy of the given code.
 func NewExecution(code []word) *Execution {
@@ -260,8 +161,10 @@ func (e *Execution) args(c command) []*word {
 		if ParMode(m[i]) == Immediate {
 			val := p[i]
 			args[i] = &val // pointer to a value
-		} else {
+		} else if ParMode(m[i]) == Position {
 			args[i] = e.p.At(p[i]) // pointer to the memory element (writable)
+		} else {
+			args[i] = e.p.At(e.offset + p[i]) // writable too
 		}
 		argsDebug[i] = *args[i]
 	}
@@ -287,7 +190,8 @@ type Program struct {
 	ram  map[word]*word
 }
 
-// At returns a pointer to the memory element
+// At returns a pointer to the memory element. The element can be read from
+// or written to, through the pointer.
 func (p Program) At(pos word) *word {
 	if pos > word(len(p.code)) {
 		if v, ok := p.ram[pos]; ok {
@@ -350,6 +254,7 @@ type ParMode int
 const (
 	Position  ParMode = 0
 	Immediate ParMode = 1
+	Relative  ParMode = 2
 )
 
 var (
