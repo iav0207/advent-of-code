@@ -156,7 +156,10 @@ type Phase = word
 func NewExecution(code []word) *Execution {
 	codeCopy := make([]word, len(code))
 	copy(codeCopy, code)
-	return &Execution{p: Program{codeCopy}, scanner: &Scanner{sequence: codeCopy}}
+	return &Execution{
+		p:       Program{codeCopy, make(map[word]*word)},
+		scanner: &Scanner{sequence: codeCopy},
+	}
 }
 
 // Run is the main intcode program execution loop running in a goroutine.
@@ -226,6 +229,9 @@ func (e Execution) Run(input <-chan word) (<-chan word, chan bool) {
 				}
 				output <- *args[0]
 
+			case BaseShift:
+				e.offset += *args[0]
+
 			default:
 				log.Fatalf("Can't run opcode %d\n", cmd.op())
 			}
@@ -247,7 +253,6 @@ func (e *Execution) newCommand() command {
 // further on is agnostic of the parameter modes, as it can always work
 // on dereferenced argument values, for both reads and writes.
 func (e *Execution) args(c command) []*word {
-	memory := e.p.Code
 	p, m := c.params(), c.modes()
 	args := make([]*word, len(p))
 	argsDebug := make([]word, len(p))
@@ -256,7 +261,7 @@ func (e *Execution) args(c command) []*word {
 			val := p[i]
 			args[i] = &val // pointer to a value
 		} else {
-			args[i] = &memory[p[i]] // pointer to the memory element (writable)
+			args[i] = e.p.At(p[i]) // pointer to the memory element (writable)
 		}
 		argsDebug[i] = *args[i]
 	}
@@ -265,6 +270,8 @@ func (e *Execution) args(c command) []*word {
 		c.instruction(), c.op(), p, m, argsDebug)
 	return args
 }
+
+func (e *Execution) at(pos word) word { return *e.p.At(pos) }
 
 func (c command) params() []word           { return c.code[1:] }
 func (c command) modes() []word            { return c.instruction().ParModes() }
@@ -275,12 +282,22 @@ type command struct {
 	code []word
 }
 
-func (e Execution) at(pos word) word {
-	return e.p.Code[pos]
+type Program struct {
+	code []word
+	ram  map[word]*word
 }
 
-type Program struct {
-	Code []word
+// At returns a pointer to the memory element
+func (p Program) At(pos word) *word {
+	if pos > word(len(p.code)) {
+		if v, ok := p.ram[pos]; ok {
+			return v
+		}
+		v := new(word)
+		p.ram[pos] = v
+		return v
+	}
+	return &p.code[pos]
 }
 
 type word = int64
@@ -288,6 +305,7 @@ type word = int64
 type Execution struct {
 	p       Program
 	scanner *Scanner
+	offset  word
 }
 
 type Scanner struct {
@@ -343,6 +361,7 @@ var (
 	JumpIfFalse Operation = Operation{6, 2}
 	LessThan    Operation = Operation{7, 3}
 	Equals      Operation = Operation{8, 3}
+	BaseShift   Operation = Operation{9, 1}
 	Halt        Operation = Operation{99, 0}
 
 	ops map[word]Operation = map[word]Operation{
@@ -354,6 +373,7 @@ var (
 		6:  JumpIfFalse,
 		7:  LessThan,
 		8:  Equals,
+		9:  BaseShift,
 		99: Halt,
 	}
 )
