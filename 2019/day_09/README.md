@@ -1,6 +1,8 @@
 Spec https://adventofcode.com/2019/day/9
 
-Desc Forgot to write a readme in 2019/day_09
+Desc Unsolved. Adding functionality to intcode computer. Seems straightforward, but the solution does not pass the checks.
+
+Could not find a bug.
 
 Execution
 
@@ -11,5 +13,6 @@ go run advent_09.go < input.txt
 Output
 
 ```
+Part 1: [2101 1202 1201 2102 2993569127]
 ```
 

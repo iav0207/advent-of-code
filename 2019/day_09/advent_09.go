@@ -11,16 +11,10 @@ import (
 
 var debugMode bool
 
-const (
-	phaseLimit = 5
-	ampCount   = 5
-)
-
-var combCount = int(math.Pow(float64(phaseLimit), float64(ampCount)))
-
 func main() {
 	debugMode = isDebugMode()
 	code := readInput()
+	debugf("code length = %d\n", len(code))
 
 	fmt.Printf("Part 1: %d\n", run(NewExecution(code), 1, runOpts{stopAtNonZero: false}))
 }
@@ -34,19 +28,15 @@ func run(e *Execution, input word, opts runOpts) []word {
 	go func() { // Async send here prevents deadlocks.
 		in <- 1
 	}()
-	i := 0
 	terminated := false
 	for !terminated {
 		select {
 		case value := <-out:
-			i++
 			output = append(output, value)
 			if opts.stopAtNonZero && value != 0 {
-				debugf("non-zero output at position %d\n", i)
 				return output
 			}
 		case <-done:
-			debugf("program terminated at position %d\n", i)
 			terminated = true
 		}
 	}
@@ -89,14 +79,14 @@ func (e Execution) Run(input <-chan word) (<-chan word, chan bool) {
 				return
 
 			case Add:
-				debugf("added %d+%d=%d, put in %d (overwriting value %d)\n",
-					*args[0], *args[1], *args[0]+*args[1], params[2], e.at(params[2]))
-				*args[2] = *args[0] + *args[1]
+				res := *args[0] + *args[1]
+				*args[2] = res
 
 			case Multiply:
-				debugf("multiplied %d*%d=%d, put in %d (overwriting value %d)\n",
-					*args[0], *args[1], *args[0]**args[1], params[2], e.at(params[2]))
-				*args[2] = *args[0] * *args[1]
+				res := *args[0] * *args[1]
+				// debugf("multiplied %d*%d=%d, put in %d (overwriting value %d)\n",
+				// 	*args[0], *args[1], res, params[2], *e.p.At(params[2]))
+				*args[2] = res
 
 			case JumpIfTrue:
 				if *args[0] != 0 {
@@ -109,10 +99,11 @@ func (e Execution) Run(input <-chan word) (<-chan word, chan bool) {
 				}
 
 			case LessThan:
-				*args[2] = 0
+				res := word(0)
 				if *args[0] < *args[1] {
-					*args[2] = 1
+					res = 1
 				}
+				*args[2] = res
 
 			case Equals:
 				*args[2] = 0
@@ -144,7 +135,8 @@ func (e Execution) Run(input <-chan word) (<-chan word, chan bool) {
 // newCommand scans the next command with the length depending on the count
 // of the operation parameters.
 func (e *Execution) newCommand() command {
-	scanLen := Instruction{e.at(int64(e.scanner.cursor))}.Operation().ParCount + 1
+	code := *e.p.At(int64(e.scanner.cursor))
+	scanLen := Instruction{code}.Operation().ParCount + 1
 	return command{code: e.scanner.Scan(scanLen)}
 }
 
@@ -158,13 +150,18 @@ func (e *Execution) args(c command) []*word {
 	args := make([]*word, len(p))
 	argsDebug := make([]word, len(p))
 	for i := range p {
-		if ParMode(m[i]) == Immediate {
+		mode := ParMode(m[i])
+		switch mode {
+		case Immediate:
 			val := p[i]
 			args[i] = &val // pointer to a value
-		} else if ParMode(m[i]) == Position {
-			args[i] = e.p.At(p[i]) // pointer to the memory element (writable)
-		} else {
-			args[i] = e.p.At(e.offset + p[i]) // writable too
+		case Position:
+			pos := p[i]
+			args[i] = e.p.At(pos) // pointer to the memory element (writable)
+		case Relative:
+			relPos := p[i]
+			absPos := e.offset + relPos
+			args[i] = e.p.At(absPos)
 		}
 		argsDebug[i] = *args[i]
 	}
@@ -172,9 +169,19 @@ func (e *Execution) args(c command) []*word {
 	debugf("inst=%v\top=%v\tparams=%v\tmodes=%v\targs=%v\n",
 		c.instruction(), c.op(), p, m, argsDebug)
 	return args
+	// return Args{param: p, mode: m, offset: e.offset, ref: args}
 }
 
-func (e *Execution) at(pos word) word { return *e.p.At(pos) }
+type Args struct {
+	param  []word
+	mode   []word
+	offset word
+	ref    []*word
+}
+
+func (a *Args) arg(i int) *word {
+	return nil
+}
 
 func (c command) params() []word           { return c.code[1:] }
 func (c command) modes() []word            { return c.instruction().ParModes() }
