@@ -7,8 +7,9 @@ fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 
 fun main(vararg args: String) {
     debug = "-d" in args
-    val input = generateSequence { readLine()?.trimEnd() }.toList()
-    println("Part 1 : ${Solver(Field(input)).solvePartOne()}")
+    val field = generateSequence { readLine()?.trimEnd() }.toList().let { Field(it) }
+    val (station, visibleAsteroidsCount) = placeMonitoringStation(field)
+    println("Part 1 : ${visibleAsteroidsCount}")
 }
 
 data class Vector(val x: Int, val y: Int)
@@ -16,14 +17,14 @@ typealias Coord = Vector
 
 operator fun Vector.plus(other: Vector) = Vector(x + other.x, y + other.y)
 
-class Field(private val m: Map<Coord, Boolean>, val shape: Pair<Int, Int>) {
+class Field(private val m: MutableMap<Coord, Boolean>, val shape: Pair<Int, Int>) {
     constructor(lines: List<String>) : this(
         m = lines.withIndex()
             .flatMap { (y, line) ->
                 line.withIndex()
                     .map { (x, char) -> Coord(x, y) to (char == '#') }
             }
-            .toMap(),
+            .toMap().toMutableMap(),
         shape = lines[0].length to lines.size
     )
 
@@ -42,28 +43,31 @@ class Field(private val m: Map<Coord, Boolean>, val shape: Pair<Int, Int>) {
     }
 }
 
-class Solver(private val field: Field) {
-    fun solvePartOne(): Int = field.asteroids().maxOf { countVisibleAsteroidsFrom(it) }
+fun placeMonitoringStation(field: Field): Pair<MonitoringStation, Int> = field.asteroids()
+    .map { MonitoringStation(field, it) }
+    .map { it to it.countVisibleAsteroids() }
+    .maxBy { it.second }
 
-    fun countVisibleAsteroidsFrom(c: Coord): Int {
-        val detected = mutableSetOf<Vector>()
+class MonitoringStation(val field: Field, val position: Coord) {
+    fun countVisibleAsteroids(): Int = scan().count()
+
+    fun scan(): Sequence<Coord> {
         val blindSpots = mutableSetOf<Vector>()
-        fun Vector.absolute(): Coord = c + this
-        generateSequence(1) { it + 1 }
-            .onEach { debug { "c=$c, d=$it" } } 
+        fun Vector.absolute(): Coord = position + this
+        return generateSequence(1) { it + 1 }
+            .onEach { debug { "pos=$position, d=$it" } } 
             .map { distance -> square(distance).filter { it.absolute() in field }.toList() }
             .takeWhile { it.isNotEmpty() }
             .flatMap { it }
             .filter { field[it.absolute()] && it !in blindSpots }
-            .forEach { vec ->
+            .distinct()
+            .onEach { vec ->
                 debug { "detected $vec, abs=${vec.absolute()}" }
-                detected.add(vec)
                 val delta = vec.continuationStep
                 generateSequence(vec + delta) { it + delta }
                     .takeWhile { it.absolute() in field }
                     .forEach { blindSpots.add(it) }
             }
-        return detected.size
     }
 }
 
