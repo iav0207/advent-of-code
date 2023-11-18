@@ -8,8 +8,15 @@ fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
 fun main(vararg args: String) {
     debug = "-d" in args
     val field = generateSequence { readLine()?.trimEnd() }.toList().let { Field(it) }
+
     val (station, visibleAsteroidsCount) = placeMonitoringStation(field)
-    println("Part 1 : ${visibleAsteroidsCount}")
+    println("Part 1: ${visibleAsteroidsCount}")
+
+    val the200thToVanish = station.vaporizeAsteroidsClockwise()
+        .take(200)
+        .onEachIndexed { i, it -> debug { "${i+1}. vaporized $it" } }
+        .last()
+    println("Part 2: ${the200thToVanish.run { 100*x + y }}") 
 }
 
 data class Vector(val x: Int, val y: Int)
@@ -32,6 +39,8 @@ class Field(private val m: MutableMap<Coord, Boolean>, val shape: Pair<Int, Int>
     operator fun contains(c: Coord) =
         c.x >= 0 && c.y >= 0 && c.x < shape.first && c.y < shape.second
 
+    fun destroyAt(c: Coord) = Unit.also { m[c] = false }
+
     fun asteroids() = coords().filter { this[it] }
 
     fun coords(): Sequence<Coord> = sequence {
@@ -53,7 +62,6 @@ class MonitoringStation(val field: Field, val position: Coord) {
 
     fun scan(): Sequence<Coord> {
         val blindSpots = mutableSetOf<Vector>()
-        fun Vector.absolute(): Coord = position + this
         return generateSequence(1) { it + 1 }
             .onEach { debug { "pos=$position, d=$it" } } 
             .map { distance -> square(distance).filter { it.absolute() in field }.toList() }
@@ -69,6 +77,20 @@ class MonitoringStation(val field: Field, val position: Coord) {
                     .forEach { blindSpots.add(it) }
             }
     }
+
+    fun vaporizeAsteroidsClockwise(): Sequence<Coord> = sequence {
+        while (true) {
+            val vaporized = scan()
+                .sortedBy { it.angleFrom12OClockClockwise() }
+                .map { it.absolute() }
+                .onEach { field.destroyAt(it) }
+                .toList()
+            if (vaporized.isEmpty()) break
+            yieldAll(vaporized)
+        }
+    }
+
+    private fun Vector.absolute(): Coord = plus(position)
 }
 
 fun square(distance: Int): Sequence<Vector> = sequence {
@@ -80,10 +102,17 @@ fun square(distance: Int): Sequence<Vector> = sequence {
     }
 }
 
-val Vector.continuationStep get() = Vector(
-    x = x / gcd(abs(x), abs(y)),
-    y = y / gcd(abs(x), abs(y)),
-)
+/**
+ * To calculate angle theta from the x axis counter-clockwise (traditionally) atan2(y, x)
+ * is used. To start from the top, we flip the coordinates, and to run clockwise,
+ * we negate the result.
+ */
+private fun Vector.angleFrom12OClockClockwise(): Double = -atan2(x.toDouble(), y.toDouble())
+
+val Vector.continuationStep get(): Vector {
+    val scale = gcd(x, y)
+    return Vector(x/scale, y/scale)
+}
 
 fun gcd(a: Int, b: Int): Int {
     if (a == 0 || b == 0) return abs(a + b)

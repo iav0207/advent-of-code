@@ -28,6 +28,10 @@ https://adventofcode.com/2019
   + Finding the best circuit of amplifiers, each amplifier is an intcode computer. Used Golang channels and goroutines. Permutations in Go.
 - [Day 08](./2019/day_08)  Python
   + Decoding and reading an encoded layered image, each layer consisting of transparent or color pixels.
+- [Day 09](./2019/day_09)  Go
+  + Unsolved. Adding functionality to intcode computer. Seems straightforward, but the solution does not pass the checks.
+- [Day 10](./2019/day_10)  Kotlin
+  + Finding the best spot in space to vaporize asteroids from.
 
 ## 2020
 
