@@ -4,7 +4,7 @@ map <F7> <F6>:!make run < input.txt<CR>
 map <F8> <F6>:!make debug < input.txt<CR>
 map <F9> <F6>:!make debug < example.txt<CR>
 
-set noexpandtab
+set cin
 
 e advent_{{{DAY}}}.cpp
 vne input.txt
