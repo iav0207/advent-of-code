@@ -36,6 +36,7 @@ function init_day() {
     require day $day
     day_padded="$(printf '%02d' "${day}")"
     cd "$(dirname $0)"
+    mkdir -p "${year}"
     new_dir="${year}/day_${day_padded}"
     use_template "templates/${lang}" "${new_dir}"
     cd $new_dir
