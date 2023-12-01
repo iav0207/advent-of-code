@@ -186,4 +186,4 @@ https://adventofcode.com/2023
 [Jump to top](#index)
 
 - [Day 01](./2023/day_01)  C++
-  + Reading digits from strings (even if they are written as words).
+  + Reading digits from strings. Even if they are written as words.

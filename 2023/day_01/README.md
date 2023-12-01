@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2023/day/1
 
-Desc Reading digits from strings (even if they are written as words).
+Desc Reading digits from strings. Even if they are written as words.
 
 Execution
 
