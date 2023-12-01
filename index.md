@@ -32,6 +32,9 @@ https://adventofcode.com/2019
   + Unsolved. Adding functionality to intcode computer. Seems straightforward, but the solution does not pass the checks.
 - [Day 10](./2019/day_10)  Kotlin
   + Finding the best spot in space to vaporize asteroids from.
+  + Day 11 Not done
+- [Day 12](./2019/day_12)  Kotlin
+  + N-body problem with 4 Jupiter moons.
 
 ## 2020
 
