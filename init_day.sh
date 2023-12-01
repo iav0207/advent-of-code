@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function require() {
+require() {
     name=$1 val=$2
     if [[ -z "$val" ]]; then
         echo "Parameter $name is required" 1>&2
@@ -8,12 +8,12 @@ function require() {
     fi
 }
 
-function replace_content() {
+replace_content() {
     folder=$1 to_replace=$2 replace_with=$3
     sed -i '' -e "s/${to_replace}/${replace_with}/g" $(find $folder -type f)
 }
 
-function rename_files() {
+rename_files() {
     folder=$1 to_replace=$2 replace_with=$3
     for orig in $(find $folder -type f -iname "*${to_replace}*"); do
         repl="${orig//$to_replace/$replace_with}"
@@ -21,7 +21,7 @@ function rename_files() {
     done
 }
 
-function use_template() {
+use_template() {
     template_dir=$1 destination=$2
     cp -R $template_dir $destination
     replace_content $destination '{{{DAY_UNPADDED}}}' "${day}"
@@ -30,7 +30,7 @@ function use_template() {
     rename_files    $destination 'DAY'          "${day_padded}"
 }
 
-function init_day() {
+init_day() {
     year=$1 day=$2 lang=${3:-kotlin}
     require year $year
     require day $day

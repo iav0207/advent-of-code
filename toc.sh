@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function langof() {
+langof() {
     case "${1##*\.}" in
             'F')          echo Fortran          ;;
             'c')          echo C                ;;
