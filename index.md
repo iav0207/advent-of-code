@@ -5,6 +5,7 @@
 - [2020](#2020)
 - [2021](#2021)
 - [2022](#2022)
+- [2023](#2023)
 
 ## 2019
 
@@ -177,3 +178,12 @@ https://adventofcode.com/2022
   + Recursive evaluation of numbers that _monkeys yell_. Then fitting a value for a human to yell to pass the equality test of the _root monkey_.
 - [Day 22](./2022/day_22)  Python
   + Walking around a force field given a set of instructions (turn + move), hitting walls and wrapping around the non-rectangular field.
+
+## 2023
+
+https://adventofcode.com/2023
+
+[Jump to top](#index)
+
+- [Day 01](./2023/day_01)  C++
+  + Reading digits from strings (even if they are written as words).
