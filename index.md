@@ -187,4 +187,5 @@ https://adventofcode.com/2023
 
 - [Day 01](./2023/day_01)  C++ Haskell
   + Reading digits from strings. Even if they are written as words.
-- [Day 02](./2023/day_02)  Haskell
+- [Day 02](./2023/day_02)  Kotlin
+  + Finding minimum set of cubes sufficient to play the game of revealing colored cubes from a bag.
