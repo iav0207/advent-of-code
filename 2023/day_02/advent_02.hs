@@ -9,13 +9,12 @@ main = do
     args <- getArgs
     let debugMode = elem "-d" args
     input <- lines <$> getContents
-    solve input debugMode
+    putStrLn $ case parseGames input of
+        Left err -> "Error occurred: " ++ show err
+        Right games -> fmtResult (solvePartOne games) (solvePartTwo games)
 
-solve :: [String] -> Bool -> IO ()
-solve input debugMode = do
-    case parseGames input of
-        Left err -> putStrLn $ "Parse error: " ++ show err
-        Right games -> printList games
+fmtResult :: Int -> Int -> String
+fmtResult p1 p2 = "Part 1: " ++ show p1 ++ "\nPart 2: " ++ show p2
 
 data Game = Game { gameId :: Int, sets :: [Set] }
     deriving Show
@@ -23,9 +22,11 @@ data Game = Game { gameId :: Int, sets :: [Set] }
 data Set = Set { r :: Int, g :: Int, b :: Int }
     deriving Show
 
-asSet :: [Int] -> Set
-asSet [r, g, b] = Set r g b
-asSet _ = error "asSet: Expected a list of three integers"
+solvePartOne :: [Game] -> Int
+solvePartOne games = 0
+
+solvePartTwo :: [Game] -> Int
+solvePartTwo games = 0
 
 parseGames :: [String] -> Either ParseError [Game]
 parseGames lines = parse (many parseGame <* eof) "input lines" (unlines lines)
@@ -44,6 +45,13 @@ parseSet = do
     items <- sepBy parseItem (string ", ")
     return $ asSet $ map (\c -> quantityOf c items) ["red", "green", "blue"]
 
+asSet :: [Int] -> Set
+asSet [r, g, b] = Set r g b
+asSet _ = error "asSet: Expected a list of three integers"
+
+quantityOf :: String -> [(String, Int)] -> Int
+quantityOf color items = fromMaybe 0 $ snd <$> find (\(c, _) -> c == color) items
+
 parseItem :: Parser (String, Int)
 parseItem = do
     spaces
@@ -51,11 +59,6 @@ parseItem = do
     spaces
     color <- many letter
     return (color, quantity)
-
-quantityOf :: String -> [(String, Int)] -> Int
-quantityOf color items = case find (\(c, _) -> c == color) items of
-    Just (_, qty) -> qty
-    Nothing -> 0
 
 printList :: Show a => [a] -> IO ()
 printList = mapM_ putStrLn . map show
