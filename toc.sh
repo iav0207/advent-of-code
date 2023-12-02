@@ -9,6 +9,7 @@ langof() {
             'cs')         echo 'C#'             ;;
             'go')         echo Go               ;;
             'groovy')     echo Groovy           ;;
+            'hs')         echo Haskell          ;;
             'java')       echo Java             ;;
             'jl')         echo Julia            ;;
             'js')         echo JavaScript       ;;

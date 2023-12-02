@@ -185,5 +185,6 @@ https://adventofcode.com/2023
 
 [Jump to top](#index)
 
-- [Day 01](./2023/day_01)  C++
+- [Day 01](./2023/day_01)  C++ Haskell
   + Reading digits from strings. Even if they are written as words.
+- [Day 02](./2023/day_02)  Haskell
