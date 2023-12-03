@@ -11,18 +11,30 @@ fun main(vararg args: String) {
     val input = generateSequence { readLine()?.trimEnd() }.toList()
 
     debug { input }
-	val partNumbers = mutableListOf<Int>()
-	val numbersRegex = "\\d+".toRegex()
-	input.withIndex().forEach { (i, line) ->
-		val numbers = numbersRegex.findAll(line).map { it.range to it.value.toInt() }
-		numbers.filter { (rng, _) ->
-			(maxOf(0, i - 1) .. minOf(input.size - 1, i + 1)).any { ii ->
-				(maxOf(0, rng.start - 1) .. minOf(line.length - 1, rng.endInclusive + 1)).any { jj ->
-					input[ii][jj].let { it != '.' && !it.isDigit() }
-				}
-			}
-		}.forEach { (_, num) -> partNumbers.add(num) }
+
+	fun around(i: Int, jRange: IntRange): Sequence<Pos> = sequence {
+		for (ii in maxOf(0, i - 1) .. minOf(input.size - 1, i + 1))
+			for (jj in maxOf(0, jRange.start - 1) .. minOf(input[i].length - 1, jRange.endInclusive + 1))
+				yield(Pos(ii, jj))
 	}
-	println("Part 1: ${partNumbers.sum()}")
+	fun Pos.char() = input[i][j]
+
+	val partNumbers = (0 until input.size)
+		.flatMap { i -> "\\d+".toRegex().findAll(input[i]).map { Num(it.value.toInt(), i, it.range) } }
+		.filter { around(it.i, it.js).map { it.char() }.any { c -> c != '.' && !c.isDigit() } }
+
+	println("Part 1: ${partNumbers.map { it.value }.sum()}")
+
+	val ratiosSum = partNumbers
+		.flatMap { n -> around(n.i, n.js).filter { it.char() == '*' }.map { it to n } }
+		.groupBy({ it.first }, { it.second })
+		.filterValues { it.size == 2 }
+		.mapValues { (_, nums) -> nums[0].value * nums[1].value }
+		.values.sum()
+
+	println("Part 2: $ratiosSum")
 }
+
+data class Pos(val i: Int, val j: Int)
+data class Num(val value: Int, val i: Int, val js: IntRange)
 

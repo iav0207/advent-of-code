@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2023/day/3
 
-Desc Forgot to write a readme in 2023/day_03
+Desc Finding gears adjacent to two numbers in a text field.
 
 Execution
 
@@ -11,5 +11,7 @@ make < input.txt
 Output
 
 ```
+Part 1: 520135
+Part 2: 72514855
 ```
 
