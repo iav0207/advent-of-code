@@ -3,45 +3,37 @@ import Data.List (find)
 import Data.Maybe (fromMaybe)
 import Text.Parsec
 import Text.Parsec.String (Parser)
+import Control.Applicative (liftA2)
 
 main :: IO ()
-main = do
-    args <- getArgs
-    let debugMode = elem "-d" args
-    input <- lines <$> getContents
-    putStrLn $ case parseGames input of
-        Left err -> "Error occurred: " ++ show err
-        Right games -> fmtResult (solvePartOne games) (solvePartTwo games)
+main = interact $ liftA2 fmtResult solvePartOne solvePartTwo . parseGames . lines
 
 fmtResult :: Int -> Int -> String
 fmtResult p1 p2 = "Part 1: " ++ show p1 ++ "\nPart 2: " ++ show p2
 
-data Game = Game { gameId :: Int, sets :: [Set] }
-    deriving Show
-
-data Set = Set { r :: Int, g :: Int, b :: Int }
-    deriving Show
+data Game = Game { gameId :: Int, sets :: [Set] } deriving Show
+data Set = Set { r :: Int, g :: Int, b :: Int } deriving Show
 type Bag = Set
 
-bagOf [r, g, b] = Set { r = r, g = g, b = b }
-cubes s = map ($ s) [r, g, b]
+bagOf [r, g, b] = Set r g b
+cubes (Set r g b) = [r, g, b]
 
 solvePartOne :: [Game] -> Int
-solvePartOne games = sum $ map gameId $ filter (isPossibleWith bag) games
-    where
-        bag = bagOf [12, 13, 14]
-        isPossibleWith bag (Game { sets = sets }) = all (fitsIn bag) sets
-        fitsIn bag set = all id $ zipWith (<=) (cubes set) (cubes bag)
+solvePartOne games = sum $ map gameId $ filter (isPossibleWith bag) games where
+    bag = Set 12 13 14
+    isPossibleWith bag (Game { sets = sets }) = all (fitsIn bag) sets
+    fitsIn bag set = all id $ zipWith (<=) (cubes set) (cubes bag)
 
 solvePartTwo :: [Game] -> Int
-solvePartTwo = sum . map (power . minimalBag)
-    where
-        power = product . cubes
-        minimalBag game = foldl coerceAtLeast (bagOf [0, 0, 0]) (sets game)
-        coerceAtLeast bagA bagB = bagOf $ zipWith max (cubes bagA) (cubes bagB)
+solvePartTwo = sum . map (power . minimalBag) where
+    power = product . cubes
+    minimalBag game = foldl coerceAtLeast (bagOf [0, 0, 0]) (sets game)
+    coerceAtLeast bagA bagB = bagOf $ zipWith max (cubes bagA) (cubes bagB)
 
-parseGames :: [String] -> Either ParseError [Game]
-parseGames lines = parse (many parseGame <* eof) "input lines" (unlines lines)
+parseGames :: [String] -> [Game]
+parseGames lines = case parse (many parseGame <* eof) "" (unlines lines) of
+    Left err -> error (show err)
+    Right games -> games
 
 parseGame :: Parser Game
 parseGame = do
