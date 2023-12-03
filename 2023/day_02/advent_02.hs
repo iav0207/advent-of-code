@@ -21,12 +21,24 @@ data Game = Game { gameId :: Int, sets :: [Set] }
 
 data Set = Set { r :: Int, g :: Int, b :: Int }
     deriving Show
+type Bag = Set
+
+bagOf [r, g, b] = Set { r = r, g = g, b = b }
+cubes s = map ($ s) [r, g, b]
 
 solvePartOne :: [Game] -> Int
-solvePartOne games = 0
+solvePartOne games = sum $ map gameId $ filter (isPossibleWith bag) games
+    where
+        bag = bagOf [12, 13, 14]
+        isPossibleWith bag (Game { sets = sets }) = all (fitsIn bag) sets
+        fitsIn bag set = all id $ zipWith (<=) (cubes set) (cubes bag)
 
 solvePartTwo :: [Game] -> Int
-solvePartTwo games = 0
+solvePartTwo = sum . map (power . minimalBag)
+    where
+        power = product . cubes
+        minimalBag game = foldl coerceAtLeast (bagOf [0, 0, 0]) (sets game)
+        coerceAtLeast bagA bagB = bagOf $ zipWith max (cubes bagA) (cubes bagB)
 
 parseGames :: [String] -> Either ParseError [Game]
 parseGames lines = parse (many parseGame <* eof) "input lines" (unlines lines)
