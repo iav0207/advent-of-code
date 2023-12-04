@@ -28,16 +28,10 @@ data class Card(val id: Int, val winning: List<Int>, val hand: List<Int>) {
 fun Int.pow(n: Int): Int = toDouble().pow(n).toInt()
 
 fun List<Card>.total(): Long = run {
-    val counts = MutableList(size) { if (it == 0) 0L else 1L }
-    val todo = ArrayDeque<Int>()
-    indices.drop(1).forEach { todo.add(it) }
-
     fun cnt(i: Int): Long = generateSequence(i + 1) { it + 1 }
         .take(get(i).matchingNumbers)
-        .onEach { todo.add(it) }
-        .count().toLong()
+        .sumOf { 1L + cnt(it) }
 
-    while (todo.isNotEmpty()) todo.removeFirst().also { counts[it] += cnt(it) }
-    counts.sum()
+    indices.drop(1).sumOf { 1L + cnt(it) }
 }
 
