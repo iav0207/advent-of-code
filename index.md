@@ -191,3 +191,5 @@ https://adventofcode.com/2023
   + Finding minimum set of cubes sufficient to play the game of revealing colored cubes from a bag.
 - [Day 03](./2023/day_03)  Kotlin
   + Finding gears adjacent to two numbers in a text field.
+- [Day 04](./2023/day_04)  Kotlin
+  + Recursively counting the number of winning lottery cards.
