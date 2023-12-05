@@ -193,3 +193,5 @@ https://adventofcode.com/2023
   + Finding gears adjacent to two numbers in a text field.
 - [Day 04](./2023/day_04)  Kotlin
   + Recursively counting the number of winning lottery cards.
+- [Day 05](./2023/day_05)  Kotlin
+  + Passing ranges of bigints through layers of range mappers. Range arithmetic, cutting and merging.
