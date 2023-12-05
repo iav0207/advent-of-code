@@ -2,18 +2,18 @@ package advent2023.day05
 
 import kotlin.math.*
 
-var debugMode = false
-fun debug(a: () -> Any): Unit = if (debugMode) println(a()) else Unit
-fun <T> T.debug(a: (T) -> Any): T = also { if (debugMode) println(a(it)) }
+var debug = false
+fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
+fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a(it)) }
 
 fun main(vararg args: String) {
-    debugMode = "-d" in args
+    debug = "-d" in args
     val categories = generateSequence { readLine()?.trimEnd() }
         .joinToString("\n")
         .split("\n\n")
         .map { it.split(":\\s+".toRegex()) }
         .map { it[0] to it[1].trim().split("\n") }
-        .onEach { debug { it } }
+        .toList().debug()
 
     val seedStr = categories.first().second.first()
     val mapperGroups = categories.drop(1).map { (_, rangesStr) -> rangesStr.map { it.parseMapper() } }
