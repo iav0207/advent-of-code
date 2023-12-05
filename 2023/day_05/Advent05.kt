@@ -2,12 +2,12 @@ package advent2023.day05
 
 import kotlin.math.*
 
-var debug = false
-fun debug(a: () -> Any): Unit = if (debug) println(a()) else Unit
-// fun <T> T.debug(a: T.() -> Any): T = also { if (debug) apply(a)
+var debugMode = false
+fun debug(a: () -> Any): Unit = if (debugMode) println(a()) else Unit
+fun <T> T.debug(a: (T) -> Any): T = also { if (debugMode) println(a(it)) }
 
 fun main(vararg args: String) {
-    debug = "-d" in args
+    debugMode = "-d" in args
     val categories = generateSequence { readLine()?.trimEnd() }
         .joinToString("\n")
         .split("\n\n")
@@ -18,69 +18,35 @@ fun main(vararg args: String) {
     val seedStr = categories.first().second.first()
     val mapperGroups = categories.drop(1).map { (_, rangesStr) -> rangesStr.map { it.parseMapper() } }
 
-    fun Long.asRange() = Range(this, this + 1)
-    val part1 = mapperGroups
-        .fold(seedStr.parseNumbers().map { it.asRange() }) { ranges, mappers ->
-            debug { "\n\n---------" }
-            debug { "ranges=$ranges" }
-            val mappersByStart = mappers.associateBy { it.from.startIn }.also { debug { "mappers: $it" } }
-            // cut the range by mappers.map { it.from } edges
-            val cuts: List<Range> = ranges.flatMap { range -> range.cut(mappers.map { it.from }) }
-            debug { "cuts=$cuts" }
-            cuts.map { range ->
-                mappers.find { it.willMap(range) }
-                    ?.map(range)
-                    ?.first()
-                    ?.also { debug { "mapped $range to $it" } }
-                    ?: range.also { debug { "not mapped $it" } }
-            }.reduce()
-//             acc.map { value ->
-//                 mappers.filter { value in it.from }
-//                     .map { it.map(value) }
-//                     .minOrNull() ?: value
-//             }
-              //  .also { debug { it } }
-        }
-        .minOf { it.startIn }
-    
-    println("Part 1: $part1")
+    fun solveFor(seed: List<Range>): Long = mapperGroups.fold(seed) { ranges, mappers ->
+        debug { "\n\n---------" }
+        debug { "ranges=$ranges" }
+        /*
+        cut the range by mappers.map { it.from } edges
+        to get the list of ranges that either get fully shifted by a mapper
+        or remain unmapped.
+        */
+        val cuts: List<Range> = ranges.flatMap { range -> range.cut(mappers.map { it.from }) }
+        debug { "cuts=$cuts" }
+        cuts.map { range ->
+            mappers.find { it.willMap(range) }
+                ?.map(range)
+                ?.first()
+                ?: range.debug { "not mapped $it" }
+        }.merge()
+    }.minOf { it.startIn }
 
-    val part2 = mapperGroups
-        .fold(seedStr.parseRanges()) { ranges, mappers ->
-            debug { "\n\n---------" }
-            debug { "ranges=$ranges" }
-            val mappersByStart = mappers.associateBy { it.from.startIn }.also { debug { "mappers: $it" } }
-            // cut the range by mappers.map { it.from } edges
-            val cuts: List<Range> = ranges.flatMap { range -> range.cut(mappers.map { it.from }) }
-            debug { "cuts=$cuts" }
-            cuts.map { range ->
-                mappers.find { it.willMap(range) }
-                    ?.map(range)
-                    ?.first()
-                    ?.also { debug { "mapped $range to $it" } }
-                    ?: range.also { debug { "not mapped $it" } }
-            }.reduce()
-        }
-        .minOf { it.startIn }
-
-    println("Part 2: $part2")
+    println("Part 1: ${solveFor(seedStr.parseNumbers().map { it.asUnaryRange() })}")
+    println("Part 2: ${solveFor(seedStr.parseRanges())}")
 }
 
-fun Range.cut(ranges: List<Range>): List<Range> = ranges.sortedBy { it.startIn }
-    .fold(listOf(this)) { acc, it -> acc.flatMap { each -> each.subtract(it) } }
-
-fun Range.subtract(o: Range): List<Range> = getOverlapWith(o)?.let { overlap ->
-    listOf(
-        Range(startIn, overlap.endEx),
-        Range(overlap.endEx, endEx),
-    ).filter { it.isPositive }
-} ?: listOf(this)
-
+fun Long.asUnaryRange() = Range(this, this + 1)
 fun String.parseNumbers() = split(" ").map { it.toLong() }
 fun String.parseRanges(): List<Range> = parseNumbers().chunked(2).map { (startIn, length) -> Range(startIn, startIn + length) }
 fun String.parseMapper() = split(" ").map { it.toLong() }.let { Mapper(it[0], it[1], it[2]) }
 
-fun List<Range>.reduce(doCheck: Boolean = true): List<Range> = mutableListOf<Range>().also { result ->
+/** Get the list of non-overlapping ranges which is equivalent to the original. */
+fun List<Range>.merge(): List<Range> = mutableListOf<Range>().also { result ->
     val startsIn: Map<Long, Int> = groupingBy { it.startIn }.eachCount()
     val endsEx: Map<Long, Int> = groupingBy { it.endEx }.eachCount()
     var acc = 0
@@ -94,12 +60,23 @@ fun List<Range>.reduce(doCheck: Boolean = true): List<Range> = mutableListOf<Ran
     check(acc == 0 && prev == null)
 }
 
+/** Subtract each of the given ranges from the original. */
+fun Range.cut(ranges: List<Range>): List<Range> = ranges.fold(listOf(this)) { cuts, range ->
+    cuts.flatMap { it.subtract(range) }
+    // it is important to not merge at this point to get proper cuts
+}
+
+/** Subtract the given range from the receiver. Returns 0..2 ranges. */
+fun Range.subtract(r: Range): List<Range> = getOverlapWith(r)
+    ?.let { o -> listOf(Range(startIn, o.endEx), Range(o.endEx, endEx)).filter { it.isPositive } }
+    ?: listOf(this)
+
 data class Mapper(val from: Range, val to: Range) {
     constructor(toStartIn: Long, fromStartIn: Long, length: Long) :
         this(Range(fromStartIn, fromStartIn + length), Range(toStartIn, toStartIn + length))
 
-    fun map(value: Long) = (value + if (value in from) to.startIn - from.startIn else 0)
-        //.also { debug { "$this mapped $value to $it" } }
+    fun map(value: Long) = value.plus(if (value in from) shift else 0)
+        .debug { "$this mapped $value to $it" }
 
     fun willMap(range: Range) = from.overlapsWith(range)
 
@@ -111,8 +88,11 @@ data class Mapper(val from: Range, val to: Range) {
             Range(overlap.startIn + shift, overlap.endEx + shift),
             Range(overlap.endEx, range.endEx),
         ).filter { it.isPositive }.distinct()
+            .debug { "$this mapped $range to $it" }
     }
-    val shift = to.startIn - from.startIn
+    private val shift = to.startIn - from.startIn
+
+    override fun toString() = "Mapper {$from -> $to}"
 }
 
 data class Range(val startIn: Long, val endEx: Long) {
