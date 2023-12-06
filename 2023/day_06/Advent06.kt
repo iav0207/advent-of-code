@@ -10,37 +10,28 @@ fun main(vararg args: String) {
     debug = "-d" in args
     val input = generateSequence { readLine()?.trimEnd() }.toList().debug()
 
-    val records = input
-        .map { it.split("\\s+".toRegex()).drop(1).map { v -> v.toLong() } }
-        .let { (times, distances) -> times.indices.map { i -> Run(times[i], distances[i]) } }
-        .debug()
-
-    records
-        .map { r ->
-            generateSequence(1) { it + 1 }
-                .take(r.time.toInt())
-                .count { releaseTime ->
-                    val timeLeft = r.time - releaseTime
-                    val speed = releaseTime
-                    val distance = timeLeft * speed
-                    distance > r.distance
-                }
-        }
-        .fold(1) { acc, it -> acc * it }
-        .also { println("Part 1: $it") }
-
-    val record = input.map { "\\d+".toRegex().findAll(it).map { it.value }.joinToString("").toLong() }
-        .let { (time, dist) -> Run(time, dist) }
-
-    generateSequence(1L) { it + 1 }
-        .take(record.time.toInt())
-        .count { releaseTime ->
-            val timeLeft = record.time - releaseTime
-            val speed = releaseTime
-            val distance = timeLeft * speed
-            distance > record.distance
-        }.also { println("Part 2: $it") }
+    println("Part 1: ${input.parseRecords().productOf { waysToOutrun() }}")
+    println("Part 2: ${input.parseRecord().waysToOutrun()}")
 }
 
+fun List<String>.parseRecords(): List<Run> =
+    map { it.split("\\s+".toRegex()).drop(1).map { v -> v.toLong() } }
+        .let { (times, distances) -> times.indices.map { i -> Run(times[i], distances[i]) } }
+
+fun List<String>.parseRecord(): Run =
+    map { "\\d+".toRegex().findAll(it).map { it.value }.joinToString("").toLong() }
+        .let { (time, dist) -> Run(time, dist) }
+
+fun <T: Any> Iterable<T>.productOf(selector: T.() -> Int) = fold(1) { acc, it -> acc * it.selector() }
+
 data class Run(val time: Long, val distance: Long)
+
+fun Run.waysToOutrun(): Int = generateSequence(1L) { it + 1 }
+    .take(time.toInt())
+    .count { releaseTime ->
+        val timeLeft = time - releaseTime
+        val speed = releaseTime
+        val distance = timeLeft * speed
+        distance > this.distance
+    }
 
