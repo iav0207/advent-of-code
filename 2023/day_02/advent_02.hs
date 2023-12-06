@@ -22,7 +22,7 @@ solvePartOne :: [Game] -> Int
 solvePartOne games = sum $ map gameId $ filter (isPossibleWith bag) games where
     bag = Set 12 13 14
     isPossibleWith bag (Game { sets = sets }) = all (fitsIn bag) sets
-    fitsIn bag set = all id $ zipWith (<=) (cubes set) (cubes bag)
+    fitsIn bag set = and $ zipWith (<=) (cubes set) (cubes bag)
 
 solvePartTwo :: [Game] -> Int
 solvePartTwo = sum . map (power . minimalBag) where
@@ -47,14 +47,14 @@ parseGame = do
 parseSet :: Parser Set
 parseSet = do
     items <- sepBy parseItem (string ", ")
-    return $ asSet $ map (\c -> quantityOf c items) ["red", "green", "blue"]
+    return $ asSet $ map (`quantityOf` items) ["red", "green", "blue"]
 
 asSet :: [Int] -> Set
 asSet [r, g, b] = Set r g b
 asSet _ = error "asSet: Expected a list of three integers"
 
 quantityOf :: String -> [(String, Int)] -> Int
-quantityOf color items = fromMaybe 0 $ snd <$> find (\(c, _) -> c == color) items
+quantityOf color items = maybe 0 snd $ find (\(c, _) -> c == color) items
 
 parseItem :: Parser (String, Int)
 parseItem = do
@@ -65,4 +65,4 @@ parseItem = do
     return (color, quantity)
 
 printList :: Show a => [a] -> IO ()
-printList = mapM_ putStrLn . map show
+printList = mapM_ print
