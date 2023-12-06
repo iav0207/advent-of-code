@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2023/day/6
 
-Desc Forgot to write a readme in 2023/day_06
+Desc Counting ways to beat the records in a chargeabale toy boats race.
 
 Execution
 
@@ -11,5 +11,7 @@ make < input.txt
 Output
 
 ```
+Part 1: 800280
+Part 2: 45128024
 ```
 
