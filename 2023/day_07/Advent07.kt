@@ -46,8 +46,8 @@ class Solution(val withJokers: Boolean = false) {
         { isHighCard() },
     )
 
-    fun String.isFiveOfAKind(): Boolean = groups().size == 1
-    fun String.isFourOfAKind(): Boolean = groups().values.any { it == 4 }
+    fun String.isFiveOfAKind(): Boolean = 5 in counts()
+    fun String.isFourOfAKind(): Boolean = 4 in counts()
     fun String.isFullHouse(): Boolean = counts() == listOf(2, 3)
     fun String.isThreeOfAKind(): Boolean = counts() == listOf(1, 1, 3)
     fun String.isTwoPair(): Boolean = counts() == listOf(1, 2, 2)
@@ -56,7 +56,7 @@ class Solution(val withJokers: Boolean = false) {
     fun String.counts(): List<Int> = groups().values.sorted()
     fun String.groups(): Map<Char, Int> = groupingBy { it }.eachCount().run {
         if (!withJokers) return this
-        val groupsExceptJoker = filterKeys { k -> k != 'J' }.toList().sortedBy { it.second }
+        val groupsExceptJoker = filterKeys { k -> k != 'J' }.toList().sortedByDescending { it.second }
         val jokersCount = get('J') ?: 0
         val bestGroup = groupsExceptJoker.firstOrNull() ?: 'A' to 0
         val bestGroupWithJoker = bestGroup.run { first to second + jokersCount }
@@ -65,10 +65,6 @@ class Solution(val withJokers: Boolean = false) {
             .plus(groupsExceptJoker.drop(1))
             .toMap()
             .debug { "before: $this\nafter: $it" }
-        // Part 2 passes on the example, but the answer on the real input is not accepted
-        // 252634690 is too high
-        // 249002740 is too low
-        // 250002740 is too high
     }
 }
 
