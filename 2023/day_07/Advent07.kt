@@ -63,8 +63,8 @@ class Solution(private val withJokers: Boolean = false) {
 
     private fun Map<Card, Count>.applyJokers(): Map<Card, Count> = toMutableMap().apply {
         val jokersCount = remove('J') ?: 0
-        val strongestCardRemaining = maxByOrNull { (_, count) -> count }?.key ?: 'A'
-        strongestCardRemaining.let { put(it, jokersCount.plus(get(it) ?: 0)) }
+        val strongestGroup = maxByOrNull { (_, count) -> count }?.key ?: 'A'
+        strongestGroup.let { put(it, jokersCount.plus(get(it) ?: 0)) }
     }
 }
 
