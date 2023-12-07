@@ -25,22 +25,20 @@ typealias Hand = String
 typealias Card = Char
 typealias Count = Int
 
-class Solution(val withJokers: Boolean = false) {
-    val order: Comparator<Row> = compareBy<Row> { it.type }
-        .then({ a, b -> compare(a.hand, b.hand) })
+class Solution(private val withJokers: Boolean = false) {
+    val order: Comparator<Row> get() = compareBy<Row> { it.hand.type }
+        .then({ a, b -> compareCards(a.hand, b.hand) })
         .reversed()
 
-    fun compare(le: Hand, ri: Hand): Int {
-        return le.zip(ri)
-            .map { (ele, eri) -> cardsByValue().compare(ele, eri) }
-            .firstOrNull { it != 0 } ?: 0
-    }
+    private fun compareCards(a: Hand, b: Hand): Int = a.zip(b)
+        .map { (ai, bi) -> cardsByValue.compare(ai, bi) }
+        .firstOrNull { it != 0 } ?: 0
 
-    fun cardsByValue(): Comparator<Char> = compareBy { cardValuePrecedence.indexOf(it) }
-    val cardValuePrecedence = if (withJokers) "AKQT98765432J" else "AKQJT98765432"
+    private val cardsByValue: Comparator<Card> = compareBy { cardValuePrecedence.indexOf(it) }
+    private val cardValuePrecedence = if (withJokers) "AKQT98765432J" else "AKQJT98765432"
 
-    val Row.type: Int get() = typeChecks.indexOfFirst { hand.it() }
-    val typeChecks: List<Hand.() -> Boolean> = listOf(
+    private val Hand.type: Int get() = typeChecks.indexOfFirst { it() }
+    private val typeChecks: List<Hand.() -> Boolean> = listOf(
         { isFiveOfAKind() },
         { isFourOfAKind() },
         { isFullHouse() },
@@ -50,31 +48,23 @@ class Solution(val withJokers: Boolean = false) {
         { isHighCard() },
     )
 
-    fun Hand.isFiveOfAKind(): Boolean = 5 in counts()
-    fun Hand.isFourOfAKind(): Boolean = 4 in counts()
-    fun Hand.isFullHouse(): Boolean = counts() == listOf(2, 3)
-    fun Hand.isThreeOfAKind(): Boolean = counts() == listOf(1, 1, 3)
-    fun Hand.isTwoPair(): Boolean = counts() == listOf(1, 2, 2)
-    fun Hand.isOnePair(): Boolean = counts() == listOf(1, 1, 1, 2)
-    fun Hand.isHighCard(): Boolean = groups().size == 5
+    private fun Hand.isFiveOfAKind() = 5 in counts()
+    private fun Hand.isFourOfAKind() = 4 in counts()
+    private fun Hand.isFullHouse() = counts() == listOf(2, 3)
+    private fun Hand.isThreeOfAKind() = counts() == listOf(1, 1, 3)
+    private fun Hand.isTwoPair() = counts() == listOf(1, 2, 2)
+    private fun Hand.isOnePair() = counts() == listOf(1, 1, 1, 2)
+    private fun Hand.isHighCard() = groups().size == 5
 
-    fun Hand.counts(): List<Count> = groups().values.sorted()
+    private fun Hand.counts(): List<Count> = groups().values.sorted()
 
-    fun Hand.groups(): Map<Char, Count> = groupingBy { it }.eachCount()
+    private fun Hand.groups(): Map<Card, Count> = groupingBy { it }.eachCount()
         .run { if (withJokers) applyJokers() else this }
 
-    fun Map<Char, Count>.applyJokers(): Map<Char, Count> = run {
-        val groupsExceptJoker = filterKeys { k -> k != 'J' }.toList().sortedByDescending { it.second }
-        val jokersCount = get('J') ?: 0
-        val strongestGroup = groupsExceptJoker.firstOrNull() ?: 'A' to 0
-        val strongestGroupWithJokers = strongestGroup
-            .let { (card, count) -> card to count + jokersCount }
-            .debug { "group with joker: $it" }
-
-        listOf(strongestGroupWithJokers)
-            .plus(groupsExceptJoker.drop(1))
-            .toMap()
-            .debug { "before: $this\nafter: $it" }
+    private fun Map<Card, Count>.applyJokers(): Map<Card, Count> = toMutableMap().apply {
+        val jokersCount = remove('J') ?: 0
+        val strongestCardRemaining = maxByOrNull { (_, count) -> count }?.key ?: 'A'
+        strongestCardRemaining.let { put(it, jokersCount.plus(get(it) ?: 0)) }
     }
 }
 
