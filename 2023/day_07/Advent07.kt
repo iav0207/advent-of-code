@@ -9,34 +9,38 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 fun main(vararg args: String) {
     debug = "-d" in args
     val hands = generateSequence { readLine()?.trimEnd() }.toList()
-        .map { it.split(" ").run { Hand(get(0), get(1).toInt()) } }
+        .map { it.split(" ").run { Row(get(0), get(1).toInt()) } }
 
     (1..2).forEach { part ->
         val order = Solution(withJokers = part > 1).order
         var totalWinnings = hands.sortedWith(order).debug()
             .withIndex()
-            .map { (i, it) -> (i + 1) * it.bid }.debug()
-            .sum()
+            .sumOf { (i, it) -> val rank = i + 1; rank * it.bid }
         println("Part $part: $totalWinnings")
     }
 }
 
-data class Hand(val cards: String, val bid: Int)
+data class Row(val hand: Hand, val bid: Int)
+typealias Hand = String
+typealias Card = Char
+typealias Count = Int
 
 class Solution(val withJokers: Boolean = false) {
-    val order: Comparator<Hand> = compareBy<Hand> { it.type }
-        .then({ a: Hand, b: Hand -> compareCards(a.cards, b.cards) })
+    val order: Comparator<Row> = compareBy<Row> { it.type }
+        .then({ a, b -> compare(a.hand, b.hand) })
         .reversed()
 
-    fun compareCards(le: String, ri: String): Int {
-        return le.zip(ri).map { (ele, eri) -> compareCards().compare(ele, eri) }.firstOrNull { it != 0 } ?: 0
+    fun compare(le: Hand, ri: Hand): Int {
+        return le.zip(ri)
+            .map { (ele, eri) -> cardsByValue().compare(ele, eri) }
+            .firstOrNull { it != 0 } ?: 0
     }
-    fun compareCards(): Comparator<Char> = compareBy { cardValuePrecedence.indexOf(it) }
+
+    fun cardsByValue(): Comparator<Char> = compareBy { cardValuePrecedence.indexOf(it) }
     val cardValuePrecedence = if (withJokers) "AKQT98765432J" else "AKQJT98765432"
 
-    val Hand.type: Int get() = typeChecks.indexOfFirst { cards.it() }
-
-    val typeChecks: List<String.() -> Boolean> = listOf(
+    val Row.type: Int get() = typeChecks.indexOfFirst { hand.it() }
+    val typeChecks: List<Hand.() -> Boolean> = listOf(
         { isFiveOfAKind() },
         { isFourOfAKind() },
         { isFullHouse() },
@@ -46,22 +50,28 @@ class Solution(val withJokers: Boolean = false) {
         { isHighCard() },
     )
 
-    fun String.isFiveOfAKind(): Boolean = 5 in counts()
-    fun String.isFourOfAKind(): Boolean = 4 in counts()
-    fun String.isFullHouse(): Boolean = counts() == listOf(2, 3)
-    fun String.isThreeOfAKind(): Boolean = counts() == listOf(1, 1, 3)
-    fun String.isTwoPair(): Boolean = counts() == listOf(1, 2, 2)
-    fun String.isOnePair(): Boolean = counts() == listOf(1, 1, 1, 2)
-    fun String.isHighCard(): Boolean = groups().size == 5
-    fun String.counts(): List<Int> = groups().values.sorted()
-    fun String.groups(): Map<Char, Int> = groupingBy { it }.eachCount().run {
-        if (!withJokers) return this
+    fun Hand.isFiveOfAKind(): Boolean = 5 in counts()
+    fun Hand.isFourOfAKind(): Boolean = 4 in counts()
+    fun Hand.isFullHouse(): Boolean = counts() == listOf(2, 3)
+    fun Hand.isThreeOfAKind(): Boolean = counts() == listOf(1, 1, 3)
+    fun Hand.isTwoPair(): Boolean = counts() == listOf(1, 2, 2)
+    fun Hand.isOnePair(): Boolean = counts() == listOf(1, 1, 1, 2)
+    fun Hand.isHighCard(): Boolean = groups().size == 5
+
+    fun Hand.counts(): List<Count> = groups().values.sorted()
+
+    fun Hand.groups(): Map<Char, Count> = groupingBy { it }.eachCount()
+        .run { if (withJokers) applyJokers() else this }
+
+    fun Map<Char, Count>.applyJokers(): Map<Char, Count> = run {
         val groupsExceptJoker = filterKeys { k -> k != 'J' }.toList().sortedByDescending { it.second }
         val jokersCount = get('J') ?: 0
-        val bestGroup = groupsExceptJoker.firstOrNull() ?: 'A' to 0
-        val bestGroupWithJoker = bestGroup.run { first to second + jokersCount }
+        val strongestGroup = groupsExceptJoker.firstOrNull() ?: 'A' to 0
+        val strongestGroupWithJokers = strongestGroup
+            .let { (card, count) -> card to count + jokersCount }
             .debug { "group with joker: $it" }
-        listOf(bestGroupWithJoker)
+
+        listOf(strongestGroupWithJokers)
             .plus(groupsExceptJoker.drop(1))
             .toMap()
             .debug { "before: $this\nafter: $it" }
