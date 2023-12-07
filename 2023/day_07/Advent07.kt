@@ -8,12 +8,12 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 
 fun main(vararg args: String) {
     debug = "-d" in args
-    val rows = generateSequence { readLine()?.trimEnd() }.toList()
+    val rows = generateSequence { readlnOrNull()?.trimEnd() }.toList()
         .map { it.split(" ").run { Row(get(0), get(1).toInt()) } }
 
     (1..2).forEach { part ->
         val order = Solution(withJokers = part > 1).order
-        var totalWinnings = rows.sortedWith(order).debug()
+        val totalWinnings = rows.sortedWith(order).debug()
             .withIndex()
             .sumOf { (i, it) -> val rank = i + 1; rank * it.bid }
         println("Part $part: $totalWinnings")
@@ -27,7 +27,7 @@ typealias Count = Int
 
 class Solution(private val withJokers: Boolean = false) {
     val order: Comparator<Row> get() = compareBy<Row> { it.hand.type }
-        .then({ a, b -> compareCards(a.hand, b.hand) })
+        .then { a, b -> compareCards(a.hand, b.hand) }
         .reversed()
 
     private fun compareCards(a: Hand, b: Hand): Int = a.zip(b)
