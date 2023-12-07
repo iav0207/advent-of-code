@@ -8,12 +8,12 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 
 fun main(vararg args: String) {
     debug = "-d" in args
-    val hands = generateSequence { readLine()?.trimEnd() }.toList()
+    val rows = generateSequence { readLine()?.trimEnd() }.toList()
         .map { it.split(" ").run { Row(get(0), get(1).toInt()) } }
 
     (1..2).forEach { part ->
         val order = Solution(withJokers = part > 1).order
-        var totalWinnings = hands.sortedWith(order).debug()
+        var totalWinnings = rows.sortedWith(order).debug()
             .withIndex()
             .sumOf { (i, it) -> val rank = i + 1; rank * it.bid }
         println("Part $part: $totalWinnings")
