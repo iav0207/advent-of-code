@@ -8,6 +8,6 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 
 fun main(vararg args: String) {
     debug = "-d" in args
-    val input = generateSequence { readLine()?.trimEnd() }.toList().debug()
+    val input = generateSequence { readlnOrNull()?.trimEnd() }.toList().debug()
 }
 
