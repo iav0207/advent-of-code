@@ -197,3 +197,5 @@ https://adventofcode.com/2023
   + Passing ranges of bigints through layers of range mappers. Range arithmetic, cutting and merging.
 - [Day 06](./2023/day_06)  Kotlin
   + Counting ways to beat the records in a chargeabale toy boats race.
+- [Day 07](./2023/day_07)  Kotlin
+  + Playing Camel poker. Comparing hands of cards, applying Joker as a wildcard to maximize hands' values.
