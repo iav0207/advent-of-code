@@ -199,3 +199,5 @@ https://adventofcode.com/2023
   + Counting ways to beat the records in a chargeabale toy boats race.
 - [Day 07](./2023/day_07)  Kotlin
   + Playing Camel poker. Comparing hands of cards, applying Joker as a wildcard to maximize hands' values.
+- [Day 08](./2023/day_08)  Kotlin
+  + Walking around a network of nodes according to looped left- and right-instructions. Calculating the number of steps needed for all walkers reach targets at once. Least common multiple.

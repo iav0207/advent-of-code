@@ -11,26 +11,26 @@ fun main(vararg args: Node) {
     val input = generateSequence { readlnOrNull()?.trimEnd() }.toList()
 
     val instructions = input[0]
-    val network = input.drop(2).map { "\\w+".toRegex().findAll(it) }
+
+    val network: Map<Node, Pair<Node, Node>> = input.drop(2).map { "\\w+".toRegex().findAll(it) }
         .map { it.map { match -> match.value }.toList() }
         .associate { it[0] to (it[1] to it[2]) }.debug()
 
-    var curr = "AAA"
-    var steps = instructions.cycle()
-        .onEach { curr = network[curr]!!.apply(it) }
-        .takeWhile { curr != "ZZZ" }
-        .count()
+    var instruction = instructions.cycle().iterator()
+    var steps: Long = generateSequence("AAA") { network[it]!!.apply(instruction.next()) }
+        .takeWhile { it != "ZZZ" }
+        .count().toLong()
 
     println("Part 1: $steps")
 
     fun stepsToFinishFrom(start: Node): Int {
-        val instruction = instructions.cycle().iterator()
+        instruction = instructions.cycle().iterator()
         return generateSequence(start) { network[it]!!.apply(instruction.next()) }
-            .takeWhile { it[2] != 'Z' }
+            .takeWhile { !it.endsWith("Z") }
             .count()
     }
 
-    steps = network.keys.filter { it[2] == 'A' }
+    steps = network.keys.filter { it.endsWith("A") }
         .map { stepsToFinishFrom(it).toLong() }
         .debug()
         .reduce { acc, it -> leastCommonMultiple(acc, it.toLong()) }
