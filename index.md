@@ -201,3 +201,5 @@ https://adventofcode.com/2023
   + Playing Camel poker. Comparing hands of cards, applying Joker as a wildcard to maximize hands' values.
 - [Day 08](./2023/day_08)  Kotlin
   + Walking around a network of nodes according to looped left- and right-instructions. Calculating the number of steps needed for all walkers reach targets at once. Least common multiple.
+- [Day 09](./2023/day_09)  Kotlin
+  + Extrapolating series of values forward and backward using pairwise differences.

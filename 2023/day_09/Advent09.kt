@@ -9,47 +9,42 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 fun main(vararg args: String) {
     debug = "-d" in args
     val input = generateSequence { readlnOrNull()?.trimEnd() }
-        .map { line -> line.split(" ").map { it.toLong() }.toMutableList() }
+        .map { line -> line.split(" ").map { it.toLong() } }
         .toList()
 
     println("Part 1: ${Solution(input).part1()}")
     println("Part 2: ${Solution(input).part2()}")
 }
 
-class Solution(val input: List<MutableList<Long>>) {
-    val n = input.size
+class Solution(val input: List<List<Long>>) {
     val m = input[0].size
 
     fun part1(): Long = input.indices.sumOf { calcNext(it) }
-    fun part2(): Long = input.indices.sumOf { calcPrev(it).debug { "LEFT $it" } }
+    fun part2(): Long = input.indices.sumOf { calcPrev(it) }
 
-    fun calcNext(i: Int): Long = diffTable(i).debug { "DT[$i] = $it" }.extrapolateRight()
-    fun calcPrev(i: Int): Long = diffTable(i).extrapolateLeft()
+    private fun calcNext(i: Int): Long = diffTable(i).debug { "DT[$i] = $it" }.extrapolateRight()
+    private fun calcPrev(i: Int): Long = diffTable(i).extrapolateLeft()
 
-    fun diffTable(i: Int): DiffTable =
-        generateSequence(input[i].debug()) { it.zipWithNext { prv, nxt -> nxt - prv }.toMutableList().debug() }
-            .takeWhile { row -> !row.all { it == 0L } } // won't return trailing row of zeros
+    private fun diffTable(i: Int): DiffTable =
+        generateSequence(input[i].debug()) { it.zipWithNext { prv, nxt -> nxt - prv }.debug() }
+            .takeWhile { row -> !row.all { it == 0L } } // won't return the trailing row of zeros, it's "implied"
             .toList()
 
-    fun DiffTable.extrapolateRight(): Long = extrapolateRight(0, m)
-    fun DiffTable.extrapolateLeft(): Long = extrapolateLeft(0, -1)
+    private fun DiffTable.extrapolateRight(): Long = extrapolateRight(0, m)
+    private fun DiffTable.extrapolateLeft(): Long = extrapolateLeft(0, -1)
 
-    fun DiffTable.extrapolateLeft(i: Int, j: Int): Long = run {
-        debug { "extr $i $j" }
-        when {
-            i == size -> 0L
-            i in indices && j in get(i).indices -> get(i).get(j)
-            else -> extrapolateLeft(i, j + 1) - extrapolateLeft(i + 1, j)
-        }
+    private fun DiffTable.extrapolateLeft(i: Int, j: Int): Long = when {
+        i == size -> 0L
+        i in indices && j in get(i).indices -> get(i).get(j)
+        else -> extrapolateLeft(i, j + 1) - extrapolateLeft(i + 1, j)
     }
 
-    fun DiffTable.extrapolateRight(i: Int, j: Int): Long {
-        debug { "extr $i $j" }
-        if (i == size) return 0L
-        if (i in indices && j in get(i).indices) return get(i).get(j)
-        return extrapolateRight(i, j - 1) + extrapolateRight(i + 1, j - 1)
+    private fun DiffTable.extrapolateRight(i: Int, j: Int): Long = when {
+        i == size -> 0L
+        i in indices && j in get(i).indices -> get(i).get(j)
+        else -> extrapolateRight(i, j - 1) + extrapolateRight(i + 1, j - 1)
     }
 }
 
-typealias DiffTable = List<MutableList<Long>>
+typealias DiffTable = List<List<Long>>
 

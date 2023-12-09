@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2023/day/9
 
-Desc Forgot to write a readme in 2023/day_09
+Desc Extrapolating series of values forward and backward using pairwise differences.
 
 Execution
 
@@ -11,5 +11,7 @@ make < input.txt
 Output
 
 ```
+Part 1: 1972648895
+Part 2: 919
 ```
 
