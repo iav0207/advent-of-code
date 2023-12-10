@@ -40,7 +40,7 @@ parseGame = do
     string "Game "
     gameId <- read <$> many digit
     string ": "
-    sets <- sepBy parseSet (string "; ")
+    sets <- parseSet `sepBy`  string "; "
     spaces
     return $ Game gameId sets
 

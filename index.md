@@ -203,3 +203,5 @@ https://adventofcode.com/2023
   + Walking around a network of nodes according to looped left- and right-instructions. Calculating the number of steps needed for all walkers reach targets at once. Least common multiple.
 - [Day 09](./2023/day_09)  Kotlin
   + Extrapolating series of values forward and backward using pairwise differences.
+- [Day 10](./2023/day_10)  Kotlin
+  + Finding a loop in the field of pipe parts, then finding the area enclosed by the loop.
