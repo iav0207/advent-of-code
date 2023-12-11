@@ -12,6 +12,7 @@ fun main(vararg args: String) {
     
     Solution(field).apply {
         println("Part 1: ${part1()}")
+        println("Part 2: ${part2()}")
     }
 }
 
@@ -29,17 +30,20 @@ class Solution(val field: List<String>) {
         .filter { j -> (0 until n).none { i -> field[i][j] == '#' } }
         .debug { "empty columns: $it"}
 
-    val galaxies = coords().filter { at(it) == '#' }.toList()
+    val galaxies = coords().filter { at(it) == '#' }.toList().debug { "galaxies count: ${it.size} n = $n m = $m" }
 
     fun part1() = galaxyPairs().sumOf { gp -> distance(gp.first, gp.second).debug { "dist($gp) = $it" } }
+    fun part2() = galaxyPairs().sumOf { gp -> distance(gp.first, gp.second, emptySpaceMultiplier = 1_000_000L) }
 
-    fun distance(g1i: Int, g2i: Int): Int {
+    fun distance(g1i: Int, g2i: Int, emptySpaceMultiplier: Long = 2L): Long {
         val (g1, g2) = galaxies[g1i] to galaxies[g2i]
         val iMin = minOf(g1.i, g2.i)
         val iMax = maxOf(g1.i, g2.i)
         val jMin = minOf(g1.j, g2.j)
         val jMax = maxOf(g1.j, g2.j)
-        return abs(g1.i - g2.i) + abs(g1.j - g2.j) + emptyCols.count { it in (jMin+1 until jMax) } + emptyRows.count { it in (iMin+1 until iMax) }
+        var emptySpace = emptyCols.count { it in (jMin+1 until jMax) }.toLong() + emptyRows.count { it in (iMin+1 until iMax) }
+        emptySpace *= emptySpaceMultiplier - 1
+        return abs(g1.i - g2.i) + abs(g1.j - g2.j) + emptySpace
     }
 
     fun galaxyPairs(): Sequence<Pair<Int, Int>> = galaxies.indices.asSequence().flatMap { gi ->
