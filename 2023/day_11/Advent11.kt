@@ -9,7 +9,7 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 fun main(vararg args: String) {
     debug = "-d" in args
     val field = generateSequence { readlnOrNull()?.trimEnd() }.toList()
-    
+
     Solution(field).apply {
         println("Part 1: ${part1()}")
         println("Part 2: ${part2()}")
@@ -18,33 +18,36 @@ fun main(vararg args: String) {
 
 data class Coord(val i: Int, val j: Int)
 
+val galaxy = '#'
+
 class Solution(val field: List<String>) {
     val n = field.size
     val m = field[0].length
     val emptyRows = field.withIndex()
-        .filter { (_, line) -> '#' !in line }
+        .filter { (_, line) -> galaxy !in line }
         .map { it.index }
         .debug { "empty rows: $it" }
 
     val emptyCols = (0 until m)
-        .filter { j -> (0 until n).none { i -> field[i][j] == '#' } }
+        .filter { j -> (0 until n).none { i -> field[i][j] == galaxy } }
         .debug { "empty columns: $it"}
 
-    val galaxies = coords().filter { at(it) == '#' }.toList().debug { "galaxies count: ${it.size} n = $n m = $m" }
+    val galaxies = coords().filter { at(it) == galaxy }.toList().debug { "galaxies count: ${it.size} n = $n m = $m" }
 
-    fun part1() = galaxyPairs().sumOf { gp -> distance(gp.first, gp.second).debug { "dist($gp) = $it" } }
-    fun part2() = galaxyPairs().sumOf { gp -> distance(gp.first, gp.second, emptySpaceMultiplier = 1_000_000L) }
+    fun part1() = galaxyPairs().sumOf { distance(it) }
+    fun part2() = galaxyPairs().sumOf { distance(it, emptySpaceMultiplier = 1_000_000L) }
 
-    fun distance(g1i: Int, g2i: Int, emptySpaceMultiplier: Long = 2L): Long {
-        val (g1, g2) = galaxies[g1i] to galaxies[g2i]
-        val iMin = minOf(g1.i, g2.i)
-        val iMax = maxOf(g1.i, g2.i)
-        val jMin = minOf(g1.j, g2.j)
-        val jMax = maxOf(g1.j, g2.j)
-        var emptySpace = emptyCols.count { it in (jMin+1 until jMax) }.toLong() + emptyRows.count { it in (iMin+1 until iMax) }
-        emptySpace *= emptySpaceMultiplier - 1
-        return abs(g1.i - g2.i) + abs(g1.j - g2.j) + emptySpace
+    fun distance(gPair: Pair<Int, Int>, emptySpaceMultiplier: Long = 2L): Long {
+        val (c1, c2) = galaxies[gPair.first] to galaxies[gPair.second]
+        return manhattan(c1, c2) + emptySpaceBetween(c1, c2) * (emptySpaceMultiplier - 1)
     }
+
+    fun manhattan(c1: Coord, c2: Coord) = abs(c1.i - c2.i) + abs(c1.j - c2.j)
+
+    fun emptySpaceBetween(c1: Coord, c2: Coord): Long =
+        emptyCols.count { it in (minOf(c1.j, c2.j) + 1 until maxOf(c1.j, c2.j)) }
+            .toLong()
+            .plus(emptyRows.count { it in (minOf(c1.i, c2.i) until maxOf(c1.i, c2.i)) })
 
     fun galaxyPairs(): Sequence<Pair<Int, Int>> = galaxies.indices.asSequence().flatMap { gi ->
         galaxies.indices.asSequence().filter { it > gi }.map { gi to it }

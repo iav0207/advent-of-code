@@ -205,3 +205,5 @@ https://adventofcode.com/2023
   + Extrapolating series of values forward and backward using pairwise differences.
 - [Day 10](./2023/day_10)  Kotlin
   + Finding a loop in the field of pipe parts, then finding the area enclosed by the loop.
+- [Day 11](./2023/day_11)  Kotlin
+  + Finding distances between galaxies in an expanding space.
