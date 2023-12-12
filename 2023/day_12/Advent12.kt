@@ -24,29 +24,27 @@ fun main(vararg args: String) {
 
 typealias Spring = String
 typealias Signature = List<Int>
+data class Record(val spring: Spring, val sign: Signature)
 
-data class Record(val spring: Spring, val sign: Signature) {
-
-    fun arrangements(): Long = when {
-        sign.isEmpty() -> if ('#' in spring) 0L else 1L
-        spring.isEmpty() -> 0L
-        else -> cache.getOrPut(this) {
-            0L
-                .plusIf(spring.canStartWithDot()) { consumeOneDot().arrangements() }
-                .plusIf(spring.canStartWithHashes(sign.first())) { consumeHashes().arrangements() }
-        }
+fun Record.arrangements(): Long = when {
+    sign.isEmpty() -> if ('#' in spring) 0L else 1L
+    spring.isEmpty() -> 0L
+    else -> cache.getOrPut(this) {
+        0L
+            .plusIf(spring.canStartWithDot()) { consumeOneDot().arrangements() }
+            .plusIf(spring.canStartWithHashes(sign.first())) { consumeHashes().arrangements() }
     }
-
-    fun consumeOneDot() = Record(spring.drop(1), sign)
-    fun consumeHashes() = Record(spring.drop(sign.first() + 1), sign.drop(1))
-
-    fun times(n: Int) = Record(
-        spring = List(n) { spring }.joinToString("?"),
-        sign = generateSequence { sign }.take(n).flatMap { it }.toList(),
-    )
 }
 
 val cache = mutableMapOf<Record, Long>()
+
+fun Record.consumeOneDot() = Record(spring.drop(1), sign)
+fun Record.consumeHashes() = Record(spring.drop(sign.first() + 1), sign.drop(1))
+
+fun Record.times(n: Int) = Record(
+    spring = List(n) { spring }.joinToString("?"),
+    sign = List(n) { sign }.flatMap { it },
+)
 
 fun Long.plusIf(condition: Boolean, increment: () -> Long): Long = plus(if (condition) increment() else 0L)
 
