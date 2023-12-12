@@ -24,7 +24,6 @@ fun main(vararg args: String) {
 
 typealias Spring = String
 typealias Signature = List<Int>
-data class Group(val c: Char, val n: Int)
 
 data class Record(val spring: Spring, val sign: Signature) {
 
