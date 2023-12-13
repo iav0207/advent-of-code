@@ -13,40 +13,39 @@ fun main(vararg args: String) {
         .split("\n\n")
         .map { it.split("\n") }
 
-    println("Part 1: ${patterns.sumOf { it.debug { it.joinToString("\n") }.reflectionNumber()!! }}")
+    println("Part 1: ${patterns.sumOf { it.reflectionNumber() }}")
 
     patterns
-        .map { original ->
-            val originalRefNum = original.reflectionNumber()!!
-            original.tryFixSmudges()
-                .mapNotNull { p ->
-                p.reflectionNumbers()
-                    ?.firstOrNull { it != originalRefNum }
-                    ?.debug { "number $it in pattern:\n${p.joinToString("\n")}" }
-            }.firstOrNull() ?: originalRefNum
+        .map { it to it.reflectionNumber() }
+        .sumOf { (original, originalRefNum) -> original.tryFixSmudges()
+            .flatMap { p -> p.reflectionNumbers().map { p to it } }
+            .first { (_, num) -> num != originalRefNum }
+            .debug { (p, num) -> debug { "number $num in pattern:\n${p.format()}" } }
+            .second
         }
-        .sum()
         .also { println("Part 2: $it") }
 }
 
 typealias Pattern = List<String>
 
-fun Pattern.reflectionNumber(): Int? = findReflectingColumns().firstOrNull() ?: findReflectingRows().firstOrNull()?.times(100)
+fun Pattern.reflectionNumber(): Int = reflectionNumbers().first()
 fun Pattern.reflectionNumbers() = findReflectingColumns() + findReflectingRows().map { it * 100 }
 
 fun Pattern.findReflectingRows(): Sequence<Int> = sequence {
     for (i in (0 until size - 1)) {
+        // going from row i both ways checking rows equality
         generateSequence(0) { it + 1 }
             .map { inc -> (i - inc) to (i + inc + 1) }
             .takeWhile { (lo, hi) -> lo in indices && hi in indices }
-            .all { (lo, hi) -> get(lo) == get(hi) }
+            .all { (lo, hi) -> row(lo) == row(hi) }
             .also { if (it) yield(i + 1) }
     }
 }
 
 fun Pattern.findReflectingColumns(): Sequence<Int> = sequence {
-    var m = get(0).length
+    var m = row(0).length
     for (j in (0 until m - 1)) {
+        // going from column j both ways checking columns equality
         generateSequence(0) { it + 1 }
             .map { inc -> (j - inc) to (j + inc + 1) }
             .takeWhile { (lo, hi) -> lo in rowIndices && hi in rowIndices }
@@ -64,6 +63,7 @@ fun String.flipAt(i: Int): String = substring(0, i) + get(i).flip() + substring(
 fun Char.flip() = if (this == '.') '#' else '.'
 
 val Pattern.rowIndices get() = get(0).indices
-fun Pattern.column(j: Int): String = indices.map { get(it).get(j) }.joinToString("")
+fun Pattern.row(i: Int): String = get(i)
+fun Pattern.column(j: Int): String = indices.map { row(it)[j] }.joinToString("")
 fun Pattern.format() = joinToString("\n")
 

@@ -209,3 +209,5 @@ https://adventofcode.com/2023
   + Finding distances between galaxies in an expanding space.
 - [Day 12](./2023/day_12)  Kotlin
   + Counting possible arrangements of patterns in a string with wildcard characters. Dynamic programming. Good kata to practice repeatedly.
+- [Day 13](./2023/day_13)  Kotlin
+  + Finding reflection axes that mirror images horizontally or vertically. Then fixing exactly one pixel in every image to find new reflective axes.
