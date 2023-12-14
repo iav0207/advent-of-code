@@ -12,8 +12,9 @@ fun main(vararg args: String) {
     val n = input.size
     val m = input[0].length
 
+    // Left the original solution for part 1 here just for fun.
     val canRollUpTo = MutableList(m) { 0 }
-    var load = 0L
+    var load = 0
     for (i in input.indices) {
         for (j in input[i].indices) {
             val c = input[i][j]
@@ -27,10 +28,10 @@ fun main(vararg args: String) {
         }
     }
     println("Part 1: $load")
-    println("Part 1: ${Roller(input).run { tiltNorth(); load() }}")
+    check(load == Roller(input).run { tilt(Direction.NORTH); load() })
 
     Roller(input).apply {
-        runCycles(1_000_000_000)
+        rotate(1_000_000_000)
         println("Part 2: ${load()}")
     }
 }
@@ -38,132 +39,73 @@ fun main(vararg args: String) {
 typealias Field = List<Row>
 typealias Row = MutableList<Char>
 typealias Snapshot = List<List<Char>>
+typealias Load = Int
 data class Coord(val i: Int, val j: Int)
-enum class Direction(delta: Coord) {
+operator fun Coord.plus(o: Coord) = Coord(i + o.i, j + o.j)
+
+enum class Direction(val delta: Coord) {
     NORTH(Coord(-1, 0)),
     SOUTH(Coord(1, 0)),
-    EAST(Coord(1, 0)),
-    WEST(Coord(-1, 0)),
+    EAST(Coord(0, 1)),
+    WEST(Coord(0, -1)),
 }
-val NORTH = Direction.NORTH
-val SOUTH = Direction.SOUTH
-val EAST = Direction.EAST
-val WEST = Direction.WEST
-
-operator fun Coord.plus(o: Coord) = Coord(i + o.i, j + o.j)
-fun Coord.inv() = Coord(-i, -j)
 
 class Roller(input: List<String>) {
     val field: Field = input.map { it.toMutableList() }
-    val n = field.size
-    val m = field[0].size
-    val memo = mutableMapOf<Snapshot, Int>().apply { put(snapshot(), 0) }
 
-    fun load(): Long = field.withIndex().sumOf { (i, row) -> row.count { it == 'O' }.toLong().times(n - i) }
+    fun load(): Load = field.withIndex().sumOf { (i, row) -> row.count { it == 'O' }.times(field.size - i) }
 
-    fun runCycles(count: Int) {
-        for (i in 1..count) {
+    fun rotate(times: Int) {
+        val memo = mutableMapOf<Snapshot, Int>(snapshot() to 0)
+        for (i in 1..times) {
             cycle()
-            val sn = snapshot()
-            if (sn in memo) {
-                val repetitionLength = i - memo[sn]!!
-                val cyclesLeft = count - i
-                runWithNoMemo(cyclesLeft % repetitionLength) // could also be memoized (reversed)
+            val state = snapshot()
+            if (state in memo) {
+                val repetitionLength = i - memo[state]!!
+                val cyclesLeft = times - i
+                rotateWithNoMemo(cyclesLeft % repetitionLength)
                 break
             }
-            memo[sn] = i
+            memo[state] = i
         }
     }
 
-    private fun runWithNoMemo(count: Int) = repeat(count) { cycle() }
+    private fun snapshot() = field.map { it.toList() }
+    private fun rotateWithNoMemo(times: Int) = repeat(times) { cycle(); debugField() }
+    private fun debugField() = debug { field.map { it.joinToString("") }.joinToString("\n") + "\n" }
 
-    fun cycle() = apply { tiltNorth(); tiltWest(); tiltSouth(); tiltEast() }
-    fun snapshot() = field.map { it.toList() }
+    private fun cycle() = sequenceOf(Direction.NORTH, Direction.WEST, Direction.SOUTH, Direction.EAST).forEach { tilt(it) }
 
-    fun debugField() = debug { field.map { it.joinToString("") }.joinToString("\n") + "\n" }
+    fun tilt(direc: Direction) = coords(direc)
+            .filter { get(it) == 'O' }
+            .forEach { roll(it, direc) }
 
-    fun tiltNorth() {
-        val canRollTo = MutableList(maxOf(n, m)) { 0 }
-        for (c in coords(NORTH)) when(get(c)) {
-            '#' -> canRollTo[c.j] = c.i + 1
-            'O' -> {
-                set(c, '.')
-                set(c.copy(i = canRollTo[c.j]), 'O')
-                canRollTo[c.j]++
-            }
-        }
-    }
-    fun tiltSouth() {
-        val canRollTo = MutableList(maxOf(n, m)) { n - 1 }
-        for (c in coords(SOUTH)) when(get(c)) {
-            '#' -> canRollTo[c.j] = c.i - 1
-            'O' -> {
-                set(c, '.')
-                set(c.copy(i = canRollTo[c.j]), 'O')
-                canRollTo[c.j]--
-            }
-        }
-    }
-    fun tiltWest() {
-        val canRollTo = MutableList(maxOf(n, m)) { 0 }
-        for (c in coords(WEST)) when(get(c)) {
-            '#' -> canRollTo[c.i] = c.j + 1
-            'O' -> {
-                set(c, '.')
-                set(c.copy(j = canRollTo[c.i]), 'O')
-                canRollTo[c.i]++
-            }
-        }
-    }
-    fun tiltEast() {
-        val canRollTo = MutableList(maxOf(n, m)) { m - 1 }
-        for (c in coords(EAST)) when(get(c)) {
-            '#' -> canRollTo[c.i] = c.j - 1
-            'O' -> {
-                set(c, '.')
-                set(c.copy(j = canRollTo[c.i]), 'O')
-                canRollTo[c.i]--
-            }
-        }
-    }
-//     fun tilt(direc: Direction) {
-//         val start = when (direc) {
-//             NORTH -> 0
-//             SOUTH -> n
-//             EAST -> m
-//             WEST -> 0
-//         }
-//         val indexedBy: Coord.() -> Int = when(direc) {
-//             NORTH, SOUTH -> { j }
-//             EAST, WEST -> { i }
-//         }
-//         val canRollTo = MutableList(maxOf(n, m)) { start }
-//         for (c in coords(direc)) when(get(c)) {
-//             '#' -> canRollTo
-//         }
-//         coords(direc).forEach { c -> when 
-//     }
+    private fun roll(from: Coord, d: Direction) = generateSequence(from) { it + d.delta }
+        .takeWhile { it == from || (it in this && get(it) == '.') }
+        .last()
+        .also { to -> set(from, '.'); set(to, 'O') }
 
+    // Coordinates sequence that is safe to use when the board is tilted in the given direction.
     private fun coords(direction: Direction): Sequence<Coord> = when(direction) {
-        Direction.NORTH -> coords(false, false)
-        Direction.SOUTH -> coords(true, false)
-        Direction.EAST -> coords(false, true)
-        Direction.WEST -> coords(false, false)
+        Direction.NORTH -> coords(iReversed = false, jReversed = false)
+        Direction.SOUTH -> coords(iReversed = true, jReversed = false)
+        Direction.EAST -> coords(iReversed = false, jReversed = true)
+        Direction.WEST -> coords(iReversed = false, jReversed = false)
     }
 
-    private fun coords(iInv: Boolean, jInv: Boolean) =
+    // Coordinates sequence over all coordinates, where ranges of row or column indices can be reversed.
+    private fun coords(iReversed: Boolean, jReversed: Boolean) =
         field.indices
-            .run { if (iInv) reversed() else this }
+            .run { if (iReversed) reversed() else this }
             .asSequence()
             .flatMap { i ->
                 field[0].indices
-                    .run { if (jInv) reversed() else this }
+                    .run { if (jReversed) reversed() else this }
                     .map { j -> Coord(i, j) }
             }
 
-    operator fun get(c: Coord): Char = get(c.i, c.j)
-    operator fun get(i: Int, j: Int): Char = field[i][j]
-    operator fun set(c: Coord, ch: Char) = set(c.i, c.j, ch)
-    operator fun set(i: Int, j: Int, c: Char) = Unit.also { field[i][j] = c }
+    operator fun contains(c: Coord) = c.i in field.indices && c.j in field[c.i].indices
+    operator fun get(c: Coord): Char = field[c.i][c.j]
+    operator fun set(c: Coord, ch: Char) = Unit.also { field[c.i][c.j] = ch }
 }
 

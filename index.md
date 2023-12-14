@@ -211,3 +211,5 @@ https://adventofcode.com/2023
   + Counting possible arrangements of patterns in a string with wildcard characters. Dynamic programming. Good kata to practice repeatedly.
 - [Day 13](./2023/day_13)  Kotlin
   + Finding reflection axes that mirror images horizontally or vertically. Then fixing exactly one pixel in every image to find new reflective axes.
+- [Day 14](./2023/day_14)  Kotlin
+  + Tilting a platform with rolling rocks on it in all four directions, a billion cycles, finding the final state. Memoization and cycle detection.
