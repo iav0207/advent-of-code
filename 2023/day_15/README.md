@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2023/day/15
 
-Desc Forgot to write a readme in 2023/day_15
+Desc Simplest hashmap. Putting and removing items from an array of buckets based on their hash value.
 
 Execution
 
@@ -11,5 +11,7 @@ make < input.txt
 Output
 
 ```
+Part 1: 507666
+Part 2: 233537
 ```
 

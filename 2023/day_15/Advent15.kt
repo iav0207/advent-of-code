@@ -9,12 +9,17 @@ fun <T : Any> T.debug(a: (T) -> Any = { this }): T = also { if (debug) println(a
 fun main(vararg args: String) {
     debug = "-d" in args
     val steps = generateSequence { readlnOrNull()?.trimEnd() }.first().split(",").debug()
-    steps.sumOf { hash(it) }.also { println("Part 1: $it") }
+
+    println("Part 1: ${steps.sumOf { hash(it) }}")
 
     val boxes = MutableList(256) { Box(it) }
-    for (s in steps) when {
-        '-' in s -> s.substring(0, s.length - 1).let { label -> boxes[hash(label)].remove(label) }
-        else -> s.split("=").first().let { label -> boxes[hash(label)].add(s.asLens()) }
+    val sep = "[-=]".toRegex()
+    for (s in steps) {
+        val label = s.split(sep).first()
+        when {
+            '-' in s -> boxes[hash(label)].remove(label)
+            else -> boxes[hash(label)].add(s.asLens())
+        }
     }
     println("Part 2: ${boxes.sumOf { it.focusingPower() }}")
 }
@@ -34,12 +39,10 @@ class Box(val number: Int) {
             .find { (_, it) -> it.label == lens.label }
             ?.also { (i, _) -> lenses[i] = lens }
             ?: run { lenses.add(lens) }
-        debug { "Box $number: $lenses" }
     }
 
     fun remove(label: String) {
         lenses.removeIf { it.label == label }
-        debug { "Box $number: $lenses" }
     }
 }
 

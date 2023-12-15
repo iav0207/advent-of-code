@@ -213,3 +213,5 @@ https://adventofcode.com/2023
   + Finding reflection axes that mirror images horizontally or vertically. Then fixing exactly one pixel in every image to find new reflective axes.
 - [Day 14](./2023/day_14)  Kotlin
   + Tilting a platform with rolling rocks on it in all four directions, a billion cycles, finding the final state. Memoization and cycle detection.
+- [Day 15](./2023/day_15)  Kotlin
+  + Simplest hashmap. Putting and removing items from an array of buckets based on their hash value.
