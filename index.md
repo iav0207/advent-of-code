@@ -215,3 +215,5 @@ https://adventofcode.com/2023
   + Tilting a platform with rolling rocks on it in all four directions, a billion cycles, finding the final state. Memoization and cycle detection.
 - [Day 15](./2023/day_15)  Kotlin
   + Simplest hashmap. Putting and removing items from an array of buckets based on their hash value.
+- [Day 16](./2023/day_16)  Kotlin
+  + Maximizing the energy of lava by finding the best spot to put a beam of light in the field of mirrors and ray splitters. BFS.

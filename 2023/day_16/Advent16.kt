@@ -18,9 +18,7 @@ fun main(vararg args: String) {
 
 typealias Field = List<String>
 
-data class Coord(val i: Int, val j: Int) {
-    override fun toString() = "($i, $j)"
-}
+data class Coord(val i: Int, val j: Int)
 operator fun Coord.plus(o: Coord) = Coord(i + o.i, j + o.j)
 
 typealias Direction = Coord
@@ -31,9 +29,7 @@ val W = Direction(0, -1)
 fun Direction.isVertical() = this == N || this == S
 fun Direction.isHorizontal() = this == E || this == W
 
-data class Ray(val pos: Coord, val direc: Direction) {
-    override fun toString() = "$pos towards $direc"
-}
+data class Ray(val pos: Coord, val direc: Direction)
 
 class Solution(private val field: Field) {
     private val n = field.size
@@ -41,14 +37,14 @@ class Solution(private val field: Field) {
 
     fun part1(): Int = energizedTiles().debug { it.energyLayout() }.size
 
-    fun part2(): Int = everyI.map { i -> Ray(Coord(i, 0), E) }
-        .plus(everyI.map { i -> Ray(Coord(i, m - 1), W) })
-        .plus(everyJ.map { j -> Ray(Coord(0, j), S) })
-        .plus(everyJ.map { j -> Ray(Coord(0, n - 1), N) })
+    fun part2(): Int = everyRowNum.map { i -> Ray(Coord(i, 0), E) }
+        .plus(everyRowNum.map { i -> Ray(Coord(i, m - 1), W) })
+        .plus(everyColNum.map { j -> Ray(Coord(0, j), S) })
+        .plus(everyColNum.map { j -> Ray(Coord(n - 1, j), N) })
         .maxOf { start -> energizedTiles(start).size }
 
-    private val everyI get() = field.indices.asSequence()
-    private val everyJ get() = field[0].indices.asSequence()
+    private val everyRowNum get() = field.indices.asSequence()
+    private val everyColNum get() = field[0].indices.asSequence()
 
     private fun energizedTiles(start: Ray = Ray(Coord(0, 0), E)): Set<Coord> = mutableSetOf<Coord>().apply {
         val visited = mutableSetOf<Ray>()
