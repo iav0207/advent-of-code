@@ -32,67 +32,56 @@ data class Ray(val pos: Coord, val direc: Coord) {
 }
 
 class Solution(private val field: Field) {
-    fun part1(): Int = followTheBeam().map { it.pos }.toSet().debug { it.energy() }.size
+    fun part1(): Int = energizedTiles().debug { it.energy() }.size
 
     private fun Set<Coord>.energy(): String = field.indices.map { i ->
         field[i].indices.map { j -> if (Coord(i, j) in this) '#' else '.' }.joinToString("")
     }.joinToString("\n")
 
-    private fun followTheBeam(): Set<Ray> {
-        val todo = ArrayDeque<Ray>()
-        val seen = mutableSetOf<Ray>()
+    private fun energizedTiles(): Set<Coord> {
+        val energized = mutableSetOf<Coord>()
+        val visited = mutableSetOf<Ray>()
+        val queue = ArrayDeque<Ray>()
         val start = Ray(Coord(0, 0), E)
-        todo.add(start)
-        while (todo.isNotEmpty()) {
-            val ray = todo.removeFirst()
-            debug { "seen $seen" }
-            if (!seen.add(ray)) { debug { "seen $ray, exit" }; continue }
-            beam(ray)
-                .onEach { seen.add(it) }
-                .takeWhile { it.pos in this }
-                .last().debug { "ended up in $it" }
-                .let { continueFrom(it).debug { "will continue in $it" } }
-                .forEach { next -> todo.add(next); debug { "todo $next" } }
+        queue.add(start)
+
+        while (queue.isNotEmpty()) {
+            val ray = queue.removeFirst()
+            if (!visited.add(ray)) continue
+
+            energized.add(ray.pos)
+            ray.children().forEach { queue.add(it) }
         }
-        return seen
+
+        return energized
     }
 
-    private fun beam(start: Ray): Sequence<Ray> = sequence {
-        val direc = start.direc
-        var coord = start.pos
-        debug { "beam start $start" }
-        while (coord in this@Solution) {
-            val elem = get(coord)
-            debug { "yield at $coord" }
-            yield(Ray(coord, direc))
-            if (coord != start.pos && !canProceedIn(direc, elem)) break
-            coord = coord + direc
+
+    private fun Ray.children(): List<Ray> = when(get(pos)) {
+        '|' -> when(direc) {
+            E, W -> listOf(N, S)
+            else -> listOf(direc)
         }
-    }
-
-    private fun continueFrom(ray: Ray): List<Ray> = mutableListOf<Ray>().apply {
-        fun continueToThe(vararg direcs: Coord) = direcs.forEach { add(Ray(ray.pos, it)) }
-
-        when(get(ray.pos)) {
-            '|' -> if (ray.direc.isHorizontal()) continueToThe(N, S)
-            '-' -> if (ray.direc.isVertical()) continueToThe(E, W)
-            '/' -> when(ray.direc) {
-                N -> continueToThe(E)
-                S -> continueToThe(W)
-                E -> continueToThe(N)
-                W -> continueToThe(S)
-            }
-            '\\' -> when(ray.direc) {
-                N -> continueToThe(W)
-                S -> continueToThe(E)
-                E -> continueToThe(S)
-                W -> continueToThe(N)
-            }
+        '-' -> when(direc) {
+            N, S -> listOf(E, W)
+            else -> listOf(direc)
         }
-    }
-
-    private fun canProceedIn(direc: Coord, c: Char): Boolean =
-        c == '.' || (direc.isVertical() && c == '|') || (direc.isHorizontal() && c == '-')
+        '/' -> when(direc) {
+            N -> listOf(E)
+            S -> listOf(W)
+            E -> listOf(N)
+            W -> listOf(S)
+            else -> listOf(direc)
+        }
+        '\\' -> when(direc) {
+            N -> listOf(W)
+            S -> listOf(E)
+            E -> listOf(S)
+            W -> listOf(N)
+            else -> listOf(direc)
+        }
+        else -> listOf(direc)
+    }.map { Ray(pos + it, it) }.filter { it.pos in this@Solution }
 
     operator fun get(c: Coord): Char = field[c.i][c.j]
     operator fun contains(c: Coord): Boolean = c.i in field.indices && c.j in field[c.i].indices
