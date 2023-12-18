@@ -41,7 +41,16 @@ class Solution(private val field: Field) {
     private val start = Vec(0, 0)
     private val end = Vec(field.indices.last, field[0].indices.last)
 
-    fun part1(): Int {
+    fun part1(): Int = solve { _, child -> child.conseq < 4 }
+    fun part2(): Int = solve { parent, child ->
+        child.conseq <= 10 &&
+        (parent.pos == start
+            || parent.direc == child.direc
+            || parent.conseq in 4..10)
+    }
+
+
+    private fun solve(nodeFilter: (Node, Node) -> Boolean): Int {
         val todo = PriorityQueue<Node>(compareBy { it.lost })
         val memo = mutableMapOf<Triple<Vec, Vec, Count>, HeatLoss>()
         var best: HeatLoss? = null
@@ -58,15 +67,13 @@ class Solution(private val field: Field) {
                 val newPos = p.pos + direc
                 if (newPos !in field) continue
                 val child = p.newChild(direc, field[newPos])
-                if (child.direc != p.direc.inv() && child.conseq < 4) todo.add(child)
+                if (child.direc != p.direc.inv() && nodeFilter(p, child)) todo.add(child)
             }
         }
         return best!!
     }
 
     private val allDirections = setOf(Vec(0, 1), Vec(0, -1), Vec(1, 0), Vec(-1, 0))
-
-    fun part2(): Int = 0
 
     operator fun Field.get(v: Vec) = get(v.i)[v.j]
     operator fun Field.contains(v: Vec) = v.i in indices && v.j in get(0).indices

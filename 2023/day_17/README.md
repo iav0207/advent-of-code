@@ -1,6 +1,6 @@
 Spec https://adventofcode.com/2023/day/17
 
-Desc Not solved.
+Desc Finding the path of minimal heat loss, with rules on when it is allowed to turn. Dijkstra. Terribly solved, need to repeat. #kata
 
 Execution
 
@@ -11,5 +11,7 @@ make < input.txt
 Output
 
 ```
+Part 1: 1195
+Part 2: 1347
 ```
 
