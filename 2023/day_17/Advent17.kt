@@ -43,14 +43,17 @@ class Solution(private val field: Field) {
 
     fun part1(): Int {
         val todo = PriorityQueue<Node>(compareBy { it.lost })
-        val best = mutableMapOf<Vec, HeatLoss>()
+        val memo = mutableMapOf<Triple<Vec, Vec, Count>, HeatLoss>()
+        var best: HeatLoss? = null
 
         todo.add(Node(Vec(0, 0), Vec(0, 0), 0, 0))
 
         while (todo.isNotEmpty()) {
             val p = todo.remove()
-            if (best[p.pos]?.let { it <= p.lost } == true) continue
-            best[p.pos] = p.lost
+            val key = Triple(p.pos, p.direc, p.conseq)
+            if (key in memo) continue
+            memo[key] = p.lost
+            if (p.pos == end) best = minOf(best ?: p.lost, p.lost)
             for (direc in allDirections) {
                 val newPos = p.pos + direc
                 if (newPos !in field) continue
@@ -58,7 +61,7 @@ class Solution(private val field: Field) {
                 if (child.direc != p.direc.inv() && child.conseq < 4) todo.add(child)
             }
         }
-        return best[end]!!
+        return best!!
     }
 
     private val allDirections = setOf(Vec(0, 1), Vec(0, -1), Vec(1, 0), Vec(-1, 0))
