@@ -2,8 +2,6 @@ Spec https://adventofcode.com/2023/day/17
 
 Desc Finding the path of minimal heat loss, with rules on when it is allowed to turn. Dijkstra. Terribly solved, need to repeat. #kata
 
-TODO refactor this solution please.
-
 Execution
 
 ```bash
