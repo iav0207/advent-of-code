@@ -1,0 +1,12 @@
+-- Advent12.cabal
+name:                Advent12
+version:             0.1.0.0
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable Advent12
+  main-is:             Advent12.hs
+  build-depends:       base,
+                       memoize
+  default-language:    Haskell2010
+
