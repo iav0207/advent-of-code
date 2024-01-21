@@ -33,7 +33,7 @@ https://adventofcode.com/2019
   + Unsolved. Adding functionality to intcode computer. Seems straightforward, but the solution does not pass the checks.
 - [Day 10](./2019/day_10)  Kotlin
   + Finding the best spot in space to vaporize asteroids from.
-  + Day 11 Not done
+- Day 11 Not done
 - [Day 12](./2019/day_12)  Kotlin
   + N-body problem with 4 Jupiter moons.
 
@@ -123,8 +123,8 @@ https://adventofcode.com/2021
   + Throwing Dirac dice in a multiverse, watching what happens. Bottom-up DP approach.
 - [Day 22](./2021/day_22)  Python
   + Rebooting a submarine reactor. Calculating immense volumes of enormous cuboids overlapping with each other.
-  + Day 23 Not done
-  + Day 24 Not done
+- Day 23 Not done
+- Day 24 Not done
 - [Day 25](./2021/day_25)  Python
   + Sea Cucumber
 
@@ -207,7 +207,7 @@ https://adventofcode.com/2023
   + Finding a loop in the field of pipe parts, then finding the area enclosed by the loop.
 - [Day 11](./2023/day_11)  Kotlin
   + Finding distances between galaxies in an expanding space.
-- [Day 12](./2023/day_12)  Kotlin
+- [Day 12](./2023/day_12)  Haskell Kotlin
   + Counting possible arrangements of patterns in a string with wildcard characters. Dynamic programming. Good kata to practice repeatedly.
 - [Day 13](./2023/day_13)  Kotlin
   + Finding reflection axes that mirror images horizontally or vertically. Then fixing exactly one pixel in every image to find new reflective axes.
@@ -217,3 +217,9 @@ https://adventofcode.com/2023
   + Simplest hashmap. Putting and removing items from an array of buckets based on their hash value.
 - [Day 16](./2023/day_16)  Kotlin
   + Maximizing the energy of lava by finding the best spot to put a beam of light in the field of mirrors and ray splitters. BFS.
+- [Day 17](./2023/day_17)  Kotlin
+  + Finding the path of minimal heat loss, with rules on when it is allowed to turn. Dijkstra. Terribly solved, need to repeat. #kata
+- Day 18 Not done
+- Day 19 Not done
+- Day 20 Not done
+- Day 21 Not done
