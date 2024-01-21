@@ -9,4 +9,6 @@ lib/
 node_modules/
 obj/
 out/
+dist/
+dist-newstyle/
 
