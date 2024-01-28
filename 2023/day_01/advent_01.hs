@@ -1,12 +1,11 @@
-import System.Environment
-import Debug.Trace
 import Data.Char (isDigit)
-import Data.List (isPrefixOf, find)
 import Data.Functor ((<&>))
+import Data.List (isPrefixOf, find)
+import Debug.Trace (trace)
 
 main = interact $ formatOutput . map show . solveFor where
   solveFor input = [solvePartOne, solvePartTwo] <*> [input]
-  formatOutput [p1, p2] = "Part 1: " <> p1 <> "\nPart 2: " <> p2 <> "\n"
+  formatOutput [!p1, !p2] = "Part 1: " <> p1 <> "\nPart 2: " <> p2 <> "\n"
 
 solvePartOne = sum . map calibrationNumber . lines where
   calibrationNumber = read . firstAndLast . filter isDigit
