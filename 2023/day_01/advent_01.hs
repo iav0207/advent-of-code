@@ -1,33 +1,42 @@
 import System.Environment
+import Debug.Trace
 import Data.Char (isDigit)
+import Data.List (isPrefixOf, find)
+import Data.Functor ((<&>))
 
-main :: IO ()
-main = do
-    args <- getArgs
-    let debugMode = "-d" `elem` args
-    inputContents <- getContents
-    let input = lines inputContents
-    solve input debugMode
+main = interact $ formatOutput . map show . solveFor where
+  solveFor input = [solvePartOne, solvePartTwo] <*> [input]
+  formatOutput [p1, p2] = "Part 1: " <> p1 <> "\nPart 2: " <> p2 <> "\n"
 
-solve input debugMode = do
-    printList $ map digitsIndices $ input
-    let values = map calibrationValue . map digitsIndices $ input
-    if debugMode then printList values else return ()
-    putStrLn $ show $ sum values
+solvePartOne = sum . map calibrationNumber . lines where
+  calibrationNumber = read . firstAndLast . filter isDigit
 
-digitsIndices :: String -> [Int]
-digitsIndices = go 0
-    where
-        go _ [] = []
-        go index (thisChar:followingChars)
-            | isDigit thisChar = index : rest
-            | otherwise = rest
-            where
-                rest = go (index + 1) followingChars
+firstAndLast items = [head, last] <*> [items]
 
-calibrationValue :: [Int] -> Int
-calibrationValue ints = 10 * (head ints) + (last ints)
+debug x = trace (show x) x
 
-printList :: Show a => [a] -> IO ()
-printList = mapM_ putStrLn . map show
+solvePartTwo = sum . map calibrationNumber . lines where
+  calibrationNumber = read . firstAndLast . findDigits
+  findDigits = fst . foldr fd ([], "") where
+    fd char (found, seen) = case readDigitFromStart curr of
+      Nothing -> (found, curr)
+      Just val -> (val:found, curr)
+      where curr = char:seen
+  readDigitFromStart s@(first:_)
+    | isDigit first = Just first
+    | otherwise     = find match spelledOut <&> fst where
+      match (_digit, written) = s `startsWith` written
+  startsWith = flip isPrefixOf
+  spelledOut = zip ['0'..'9']
+    [ "zero"
+    , "one"
+    , "two"
+    , "three"
+    , "four"
+    , "five"
+    , "six"
+    , "seven"
+    , "eight"
+    , "nine"
+    ]
 
