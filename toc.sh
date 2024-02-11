@@ -41,6 +41,10 @@ for year in $(echo 20* | sort); do
         [ -d "${path}" ] || continue
         langs=$(ls $path| while read src; do echo $(langof $src); done | sort -u | tr '\n' ' ')
         desc=$(grep -r '^Desc ' $path | cut -d':' -f2- | cut -d' ' -f2-)
+        if [[ "$desc" == *"Forgot to write"* ]]; then
+            echo "- [Day ${day}](${path}) ${langs%?}, not solved."
+            continue
+        fi
         echo "- [Day ${day}](${path}) ${langs%?}"
         [ -z "${desc}" ] || echo "  + ${desc}"
     done
