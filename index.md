@@ -222,6 +222,7 @@ https://adventofcode.com/2023
 - [Day 17](./2023/day_17)  Kotlin
   + Finding the path of minimal heat loss, with rules on when it is allowed to turn. Dijkstra. Terribly solved, need to repeat. #kata
 - [Day 18](./2023/day_18)  Kotlin, not solved.
-- Day 19 Not done
+- [Day 19](./2023/day_19)  Kotlin
+  + Simulating outcomes of a set of conditional workflows: binary splits of a 4D space.
 - [Day 20](./2023/day_20)  Kotlin, not solved.
 - [Day 21](./2023/day_21)  Kotlin, not solved.
