@@ -30,58 +30,72 @@ fun Item.isAcceptedBy(wfs: Workflows): Boolean {
     return wfId == "A"
 }
 
+val dimensions = "xmas"
+
+
+data class HyperRange(
+    val axes: Map<Char, Range1> = dimensions.associateWith { Range1() }
+) {
+    val volume get() = axes.values.map { it.length }.product()
+    fun partition(cmd: String): Pair<HyperRange, HyperRange> {
+        val dim = cmd[0]
+        val pivot = cmd.parseInts()[0]
+        return axes[dim]!!.let {
+            when(cmd[1]) {
+                '>' -> { it.partitionGreaterThan(pivot) }
+                '<' -> { it.partitionLessThan(pivot) }
+                else -> error("unknown operation ${cmd[1]} in $cmd")
+            }
+        }.let { ranges -> ranges.map { it -> modify(dim, it) } }
+    }
+
+    private fun modify(dim: Char, newRange: Range1) = HyperRange(
+        axes.toMutableMap().also { it[dim] = newRange }
+    )
+}
+
+fun <T, R> Pair<T, T>.map(func: (T) -> R): Pair<R, R> = Pair(func(first), func(second))
+fun Iterable<Long>.product() = fold(1L) { acc, it -> acc * it }
+
+data class Range1(val min: Val = 1, val max: Val = 4000) {
+    fun partitionGreaterThan(pivot: Val) = Pair(coerceGreaterThan(pivot), coerceLessThan(pivot + 1))
+    fun partitionLessThan(pivot: Val) = Pair(coerceLessThan(pivot), coerceGreaterThan(pivot - 1))
+
+    fun coerceGreaterThan(pivot: Val) = Range1(maxOf(min, pivot + 1), maxOf(max, pivot + 1))
+    fun coerceLessThan(pivot: Val) = Range1(minOf(min, pivot - 1), minOf(max, pivot - 1))
+
+    val length = maxOf(0, max - min + 1).toLong()
+}
+
 fun countDistinctAcceptedItems(wfs: Workflows): Long {
-    val range = 1..4000
-
-    val (bx, bm, ba, bs) = wfs.bounds(range)
-        .run { listOf(get('x')!!, get('m')!!, get('a')!!, get('s')!!) }
-
-    fun nextAlong(v: Val, dimBounds: SortedSet<Val>) =
-        dimBounds.tailSet(v).drop(1).firstOrNull()?.minus(1) ?: range.last()
-
     var count = 0L
-    for (x1 in bx) {
-        val x2 = nextAlong(x1, bx)
-        for (m1 in bm) {
-            val m2 = nextAlong(m1, bm)
-            for (a1 in ba) {
-                val a2 = nextAlong(a1, ba)
-                for (s1 in bs) {
-                    val s2 = nextAlong(s1, bs)
-                    val accepted = Item(x1, m1, a1, s1).isAcceptedBy(wfs)
-                    debug { "[$x1..$x2, $m1..$m2, $a1..$a2, $s1..$s2]: $accepted" }
-                    if (accepted) {
-                        val volume = (x2 - x1 + 1).toLong() * (m2 - m1 + 1) * (a2 - a1 + 1) * (s2 - s1 + 1)
-                        count += volume.debug { "volume = $it" }
-                    }
-                }
+    val todo = ArrayDeque<State>().apply { add(State("in", HyperRange())) }
+
+    while (todo.isNotEmpty()) {
+        val (wfName, cube) = todo.removeFirst()
+        if (wfName == "A") count += cube.volume
+        if (wfName in "AR") continue
+        val wf = wfs[wfName]!!
+
+        wf.branches.map { it.src }.fold(cube) { accCube, cmd ->
+            if (":" in cmd) {
+                val (ifYes, ifNot) = accCube.partition(cmd)
+                todo.addLast(State(cmd.substringAfter(":"), ifYes))
+                ifNot
+            } else {
+                todo.addLast(State(cmd, accCube))
+                accCube
             }
         }
     }
+
     return count
 }
 
-fun Workflows.bounds(range: IntRange): MutableMap<Char, SortedSet<Val>> {
-    val bounds: MutableMap<Char, SortedSet<Val>> = "xmas".associateWith { sortedSetOf(1) }.toMutableMap()
-    values
-        .flatMap { it.branches }
-        .map { it.src }
-        .filter { ":" in it }
-        .forEach {
-            val v1 = it.allInts()[0]
-            val v2 = when {
-                "<" in it && v1 > 1 -> v1 - 1
-                ">" in it && v1 < range.last() -> v1 + 1
-                else -> v1
-            }
-            val dim = it.first()
-            bounds[dim]!!.apply { add(v1); add(v2) }
-        }
-    return bounds
-}
+data class State(val wfName: String, val cube: HyperRange)
 
-fun String.asItem() = allInts().run { Item(get(0), get(1), get(2), get(3)) }
-fun String.allInts() = intsRegex.findAll(this).map { it.value.toInt() }.toList()
+fun String.asItem() = parseInts().run { Item(get(0), get(1), get(2), get(3)) }
+fun String.parseInts() = intsRegex.findAll(this).map { it.value.toInt() }.toList()
 val intsRegex = "\\d+".toRegex()
 
 fun String.asWorkflow() = split("[{}]".toRegex()).run {
@@ -91,7 +105,7 @@ fun String.asBranch() = when {
     ":" !in this -> Branch({ true }, this, this)
     else -> {
         check("<" in this || ">" in this) { "cannot parse branch: $this" }
-        val constant = allInts()[0]
+        val constant = parseInts()[0]
         val getProp = first().asGetter()
         Branch(
             condition = {
