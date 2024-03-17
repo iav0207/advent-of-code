@@ -37,7 +37,8 @@ https://adventofcode.com/2019
 - [Day 12](./2019/day_12)  Kotlin
   + N-body problem with 4 Jupiter moons.
 - Day 13 Not done
-- [Day 14](./2019/day_14)  Haskell, not solved.
+- [Day 14](./2019/day_14)  Haskell Python
+  + Chain of reactions, finding the amount of ore needed to produce fuel. Topological sort to account for the leftover ingredients. Binary search to find the reverse: how much fuel can be produced with a trillion ore.
 
 ## 2020
 
@@ -222,7 +223,7 @@ https://adventofcode.com/2023
 - [Day 17](./2023/day_17)  Kotlin
   + Finding the path of minimal heat loss, with rules on when it is allowed to turn. Dijkstra. Terribly solved, need to repeat. #kata
 - [Day 18](./2023/day_18)  Kotlin, not solved.
-- [Day 19](./2023/day_19)  Kotlin
+- [Day 19](./2023/day_19)  Haskell Kotlin
   + Simulating outcomes of a set of conditional workflows: binary splits of a 4D space.
 - [Day 20](./2023/day_20)  Kotlin, not solved.
 - [Day 21](./2023/day_21)  Kotlin, not solved.

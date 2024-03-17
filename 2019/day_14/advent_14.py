@@ -15,7 +15,7 @@ reactions = [
 howto = {reac[1][0][1]: reac for reac in reactions}
 
 
-def part1():
+def ore_needed_for_fuel(fuel_q):
     """
     We store the number of times every element is used in reactions as an ingredient
     to only evaluate the required quantity of this element once we've seen all the uses
@@ -31,7 +31,7 @@ def part1():
             wait[material] += 1
 
     need = defaultdict(int)
-    need["FUEL"] = 1
+    need["FUEL"] = fuel_q
 
     todo = deque(["FUEL"])
     while todo:
@@ -58,4 +58,20 @@ def scale(orig_reac, need_qty):
     return [[(int(q) * coef, m) for (q, m) in side] for side in orig_reac]
 
 
-print(f"Part 1: {part1()}")
+print(f"Part 1: {ore_needed_for_fuel(1)}")
+
+def search(target, lo, hi, func):
+    while hi > lo:
+        mid = (lo + hi) // 2
+        actual = func(mid)
+        if actual == target:
+            return mid
+        elif actual > target:
+            hi = mid - 1
+        else:
+            lo = mid + 1
+    return lo
+
+tril = int(1e12)
+print(f"Part 2: {search(tril, 0, tril, ore_needed_for_fuel)}")
+
