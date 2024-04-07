@@ -17,7 +17,7 @@ https://adventofcode.com/2019
   + Calculating net and gross fuel amount needed to carry a multimodule spacecraft.
 - [Day 02](./2019/day_02)  Go
   + Intcode execution and modification
-- [Day 03](./2019/day_03)  Go
+- [Day 03](./2019/day_03)  Go Python
   + Finding closest intersection of two wires on a 2D plane
 - [Day 04](./2019/day_04)  Go
   + Finding numeric password candidates that meet certain simple criterias on digits.
