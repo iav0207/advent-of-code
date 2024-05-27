@@ -102,7 +102,7 @@ https://adventofcode.com/2021
 - [Day 09](./2021/day_09)  C#
 - [Day 10](./2021/day_10)  C Python
   + Syntax scoring of bracket sequences.
-- [Day 11](./2021/day_11)  Python
+- [Day 11](./2021/day_11)  Java Python
   + Counting flashes of bioluminescent Dumbo octopuses.
 - [Day 12](./2021/day_12)  Bash TypeScript
   + Counting ways in which we can get out of the cave system via its numerous tunnels.
