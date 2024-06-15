@@ -5,7 +5,7 @@ Desc Intcode computer upgrade: added support for more operations and an addition
 Execution
 
 ```bash
-go run advent_05.go < input.txt
+go run *.go < input.txt
 ```
 
 Output
