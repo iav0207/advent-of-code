@@ -14,7 +14,7 @@ def adj(i, j):
             if ii != i or jj != j:
                 yield ii, jj
 
-while True:
+while not all(done):
     step += 1
     todo = deque()
     flashed = set()
@@ -44,6 +44,4 @@ while True:
     if not done[1] and len(flashed) == n*m:
         print(f"Part 2: {step}")
         done[1] = True
-    if all(done):
-        break
 

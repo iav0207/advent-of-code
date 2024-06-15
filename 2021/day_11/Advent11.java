@@ -11,7 +11,7 @@ public class Advent11 {
         Optional<Integer> p1 = Optional.empty();
         Optional<Integer> p2 = Optional.empty();
 
-        while (true) {
+        while (p1.isEmpty() || p2.isEmpty()) {
             step += 1;
             var todo = new ArrayDeque<Coord>();
             var flashed = new HashSet<Coord>();
@@ -40,8 +40,6 @@ public class Advent11 {
                 p1 = Optional.of(flashes);
             if (p2.isEmpty() && flashed.size() == field.n * field.m)
                 p2 = Optional.of(step);
-            if (p1.isPresent() && p2.isPresent())
-                break;
         }
 
         p1.ifPresent(v -> System.out.printf("Part 1: %d\n", v));
