@@ -5,7 +5,7 @@ Desc Intcode execution and modification
 Execution
 
 ```bash
-go run advent_02.go < input.txt
+go run *.go < input.txt
 ```
 
 Output
