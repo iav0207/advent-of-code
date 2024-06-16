@@ -1,18 +1,19 @@
 Spec https://adventofcode.com/2019/day/9
 
-Desc Unsolved. Adding functionality to intcode computer. Seems straightforward, but the solution does not pass the checks.
+Desc Adding functionality to intcode computer: heap memory, relative addresses.
 
 Could not find a bug.
 
 Execution
 
 ```bash
-go run advent_09.go < input.txt
+go run *.go < input.txt
 ```
 
 Output
 
 ```
-Part 1: [2101 1202 1201 2102 2993569127]
+Part 1: 2955820355
+Part 2: 46643
 ```
 
