@@ -37,7 +37,8 @@ https://adventofcode.com/2019
   + Launching an intcode-powered robot to paint a spaceship license plate number.
 - [Day 12](./2019/day_12)  Kotlin
   + N-body problem with 4 Jupiter moons.
-- Day 13 Not done
+- [Day 13](./2019/day_13)  Go
+  + Playing an arcade on an intcode computer. For free!
 - [Day 14](./2019/day_14)  Haskell Python
   + Chain of reactions, finding the amount of ore needed to produce fuel. Topological sort to account for the leftover ingredients. Binary search to find the reverse: how much fuel can be produced with a trillion ore.
 
