@@ -17,10 +17,22 @@ func main() {
 	d.Eval.Start()
 	d.Explore()
 
-	d.BFSFrom(d.Position)
-	oxyTile := d.Field[d.OxygenSystem]
-	fmt.Printf("Part 1: %d\n", oxyTile.Dist)
+    var oxygenSystem Point
+	var oxyDist Dist
+	for point, dist := range d.BFSFrom(d.Position) {
+		if tile := d.Field[point]; tile == OxygenSystem {
+            oxygenSystem = point
+			oxyDist = dist
+			break
+		}
+	}
+	fmt.Printf("Part 1: %d\n", oxyDist)
 
-	d.BFSFrom(d.OxygenSystem)
-	fmt.Printf("Part 2: %d\n", d.MaxDist())
+	var maxDist Dist
+	for _, dist := range d.BFSFrom(oxygenSystem) {
+		if dist > maxDist {
+			maxDist = dist
+		}
+	}
+	fmt.Printf("Part 2: %d\n", maxDist)
 }

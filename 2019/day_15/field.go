@@ -9,15 +9,14 @@ import (
 
 type (
 	Point struct{ X, Y Word }
-	Tile  struct {
-		Type Word
-		Dist int
-	}
+	Dist  int
 	Direc struct {
 		Code  Word
 		Delta Point
 	}
-	Field map[Point]*Tile
+	Field map[Point]Tile
+
+	Tile = Word
 )
 
 const (
@@ -52,7 +51,7 @@ func (p Point) Negate() Point       { return Point{-p.X, -p.Y} }
 func (p Point) String() string      { return fmt.Sprintf("(%d,%d)", p.X, p.Y) }
 
 func (t Tile) String() string {
-	if t.Type == Word(0) {
+	if t == Wall {
 		return "#"
 	}
 	return "."

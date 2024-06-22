@@ -4,12 +4,10 @@ type Droid struct {
 	Eval     Eval
 	Position Point
 	Field    Field
-
-	OxygenSystem Point
 }
 
 func NewDroid(c Code) *Droid {
-	field := map[Point]*Tile{Point{}: &Tile{Type: Open}}
+	field := map[Point]Tile{Point{}: Open}
 	return &Droid{Eval: *NewEval(c), Field: field}
 }
 
@@ -23,7 +21,7 @@ func (d *Droid) Explore() {
 		d.Eval.In <- direc.Code
 		resp := <-d.Eval.Out
 
-		d.Field[intent] = &Tile{Type: resp, Dist: 1 + d.Field[d.Position].Dist}
+		d.Field[intent] = resp
 
 		if resp != Wall {
 			d.Position = intent
@@ -35,86 +33,36 @@ func (d *Droid) Explore() {
 	}
 }
 
-func (d *Droid) BFSFrom(start Point) {
-	d.SetAllDists(-1)
-	startTile := d.Field[start]
-	startTile.Dist = 0
-	queue := NewMemq(start)
+func (d *Droid) BFSFrom(start Point) map[Point]Dist {
+	dist := map[Point]Dist{start: 0}
+	seen := map[Point]bool{start: true}
+	todo := []Point{start}
 
-	for !queue.Empty() {
-		this, _ := queue.Next()
-		thisTile := d.Field[this]
+	for len(todo) > 0 {
+		this := todo[0]
+		todo = todo[1:]
 		for _, direc := range Directions {
 			neighbor := this.Plus(direc.Delta)
-			neighborTile, ok := d.Field[neighbor]
-			if !ok || neighborTile.Type == Wall {
+			if neighborTile, ok := d.Field[neighbor]; !ok || neighborTile == Wall {
 				continue
-			}
-			if neighborTile.Dist >= 0 {
-				if thisTile.Dist < 0 {
-					thisTile.Dist = neighborTile.Dist + 1
-				} else {
-					thisTile.Dist = min(thisTile.Dist, neighborTile.Dist+1)
+			} else if nDist, ok := dist[neighbor]; ok {
+				newDist := nDist + 1
+				if thisDist, ok := dist[this]; ok {
+					newDist = min(newDist, thisDist)
 				}
-				debugf("bfs: set %s dist=%d\n", this, thisTile.Dist)
-			}
-			if neighborTile.Dist < 0 || neighborTile.Dist > thisTile.Dist {
+				dist[this] = newDist
+				debugf("bfs: set %s dist=%d\n", this, newDist)
+			} else if found := seen[neighbor]; !found {
+				todo = append(todo, neighbor)
+                seen[neighbor] = true
 				debugf("bfs: enqueue %s\n", neighbor)
-				queue.Add(neighbor)
 			}
 		}
-		if thisTile.Type == OxygenSystem {
-			d.OxygenSystem = this
-		}
 	}
+	return dist
 }
 
-func (d *Droid) SetAllDists(dist int) {
-	for _, tile := range d.Field {
-		tile.Dist = dist
-	}
-}
-
-func (d *Droid) MaxDist() (maxDist int) {
-	for _, tile := range d.Field {
-		if tile.Type != Wall && tile.Dist > maxDist {
-			maxDist = tile.Dist
-		}
-	}
-	return
-}
-
-type Memq struct {
-	set  map[Point]bool
-	todo []Point
-}
-
-func NewMemq(ps ...Point) *Memq {
-	s := &Memq{set: make(map[Point]bool)}
-	for _, p := range ps {
-		s.Add(p)
-	}
-	return s
-}
-
-func (q *Memq) Add(p Point) {
-	if _, ok := q.set[p]; !ok {
-		q.todo = append(q.todo, p)
-		q.set[p] = true
-	}
-}
-
-func (q *Memq) Empty() bool { return len(q.todo) == 0 }
-
-func (q *Memq) Next() (p Point, ok bool) {
-	if ok = !q.Empty(); ok {
-		p = q.todo[0]
-		q.todo = q.todo[1:]
-	}
-	return
-}
-
-func min(a, b int) int {
+func min(a, b Dist) Dist {
 	if a < b {
 		return a
 	}

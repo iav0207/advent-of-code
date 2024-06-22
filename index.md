@@ -41,6 +41,8 @@ https://adventofcode.com/2019
   + Playing an arcade on an intcode computer. For free!
 - [Day 14](./2019/day_14)  Haskell Python
   + Chain of reactions, finding the amount of ore needed to produce fuel. Topological sort to account for the leftover ingredients. Binary search to find the reverse: how much fuel can be produced with a trillion ore.
+- [Day 15](./2019/day_15)  Go
+  + DFS, BFS, and BFS again. I got into an interesting pitfall when trying to reuse BFS from a different starting point on the same field. I need to practice BFS more often :P
 
 ## 2020
 
