@@ -42,7 +42,6 @@ init_day() {
     cd $new_dir
     open https://adventofcode.com/$year/day/$day/input
     open https://adventofcode.com/$year/day/$day
-    vim -c ':so .vimrc'
 }
 
 set -e
