@@ -43,6 +43,9 @@ https://adventofcode.com/2019
   + Chain of reactions, finding the amount of ore needed to produce fuel. Topological sort to account for the leftover ingredients. Binary search to find the reverse: how much fuel can be produced with a trillion ore.
 - [Day 15](./2019/day_15)  Go
   + DFS, BFS, and BFS again. I got into an interesting pitfall when trying to reuse BFS from a different starting point on the same field. I need to practice BFS more often :P
+- [Day 16](./2019/day_16)  Kotlin
+  + Didn't crack the idea of part 2, ended up peeking at what others on the
+- [Day 17](./2019/day_17)  Go, not solved.
 
 ## 2020
 
@@ -141,7 +144,7 @@ https://adventofcode.com/2022
 
 [Jump to top](#index)
 
-- [Day 01](./2022/day_01)  Python
+- [Day 01](./2022/day_01)  Bash Kotlin Python
   + Finding an elf with most calories (max and sum)
 - [Day 02](./2022/day_02)  Python
   + Rock paper scissors
