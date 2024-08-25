@@ -11,11 +11,14 @@ fun main(vararg args: String) {
     val input = generateSequence { readlnOrNull()?.trimEnd() }.first()
         .toCharArray().map { it.digitToInt() }.debug()
 
-    generateSequence(FFT(input)) { it.next() }
+    generateSequence(input) { signal ->
+        List(signal.size) { pattern(it) }
+            .map { pattern -> pattern.zip(signal.asSequence()) { a, b -> a * b }.sum().abs().mod(10) }
+    }
         .drop(100)
         .first()
         .debug()
-        .also { println("Part 1: ${it.signal.take(8).joinToString("")}") }
+        .also { println("Part 1: ${it.take(8).joinToString("")}") }
 
     val offset = input.take(7).joinToString("").toInt()
     generateSequence(input.times(10_000).drop(offset).toMutableList()) { fft ->
@@ -26,17 +29,10 @@ fun main(vararg args: String) {
         .also { println("Part 2: ${it.take(8).joinToString("")}") }
 }
 
-data class FFT(val signal: List<Int>) {
-    fun next(): FFT = FFT(
-        signal = List(signal.size) { generatePattern(it) }
-            .map { it.zip(signal.asSequence()) { a, b -> a * b }.sum().abs().mod(10) },
-    )
-
-    private fun generatePattern(repetition: Int) = listOf(0, 1, 0, -1)
-        .flatMap { listOf(it).cycle().take(repetition + 1) }
-        .cycle()
-        .drop(1)
-}
+fun pattern(repetition: Int): Sequence<Int> = loop
+    .flatMap { listOf(it).cycle().take(repetition + 1) }
+    .cycle().drop(1)
+val loop = listOf(0, 1, 0, -1)
 
 fun <T> List<T>.times(n: Int) = cycle().take(n*size)
 fun <T> List<T>.cycle() = asSequence().cycle()
