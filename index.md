@@ -91,6 +91,8 @@ https://adventofcode.com/2020
   + Funky arithmetic operation order.
 - [Day 19](./2020/day_19)  Kotlin
   + Matching messages against recursive rules (finite state automaton).
+- [Day 20](./2020/day_20)  Kotlin
+  + Building a 2D jigsaw puzzle by rotating and flipping and matching tiles.
 
 ## 2021
 
